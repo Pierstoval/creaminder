@@ -1,13 +1,13 @@
 use std::fs;
 use std::path::PathBuf;
-use std::env::current_dir;
+use std::env;
 use dirs;
 
 pub(crate) fn creaminder_dir() -> PathBuf {
     let project_dir = if cfg!(debug_assertions) {
         // Local db is stored in the target directory
-        current_dir()
-            .expect("Could not determine current directory to store database.")
+        env::current_exe().expect("Could not determine current directory to store database")
+            .parent().expect("Another err")
             .join(".creaminder_dev")
     } else {
         // Prod/release db is stored in home dir, only "kinda" accessible place

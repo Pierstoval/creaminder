@@ -19,6 +19,8 @@ mod migrations;
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
+    dbg!("Running project.");
+
     let mut conn = get_database_connection();
 
     let migrations = rusqlite_migration::Migrations::new(migrations::migrations());
