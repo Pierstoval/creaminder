@@ -49,25 +49,23 @@ pub(crate) fn find_all(conn: &Connection) -> Vec<Activity> {
 pub(crate) fn create(conn: &Connection, description: Option<String>, date: Option<String>) -> Result<Activity, String> {
     let description = description.unwrap_or(String::from(""));
 
+    dbg!(&description);
+    dbg!(&date);
+    let date_rfc: DateTime<Local>;
     if date.is_some() {
-        let date_rfc = DateTime::parse_from_rfc3339(&date.clone().unwrap());
+        let checked_date = DateTime::parse_from_str(&date.clone().unwrap(), "%Y-%m-%dT%H:%M:%S%z");
 
-        if date_rfc.is_err() {
-            return Err(date_rfc.unwrap_err().to_string());
+        if checked_date.is_err() {
+            dbg!("Date is invalid⛔");
+            dbg!(&checked_date);
+            return Err(checked_date.unwrap_err().to_string());
         }
+
+        date_rfc = checked_date.unwrap().into();
+    } else {
+        date_rfc = Local::now();
     }
 
-    let date_rfc: DateTime<Local> = if date.is_none() {
-        Local::now()
-    } else {
-        let date_rfc = DateTime::parse_from_rfc3339(&date.clone().unwrap());
-
-        if date_rfc.is_err() {
-            return Err(date_rfc.unwrap_err().to_string());
-        }
-
-        date_rfc.unwrap().into()
-    };
     dbg!(&date_rfc);
 
     let mut stmt = conn.prepare("INSERT INTO activities ( description, date ) VALUES ( :description, :date )").unwrap();

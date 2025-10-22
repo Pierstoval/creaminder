@@ -1,5 +1,90 @@
+/*
+ * Base global styles
+ */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    padding: 20px;
+}
+
 form label[required]::after {
     content: " *";
     color: red;
     display: inline;
+}
+
+input {
+    padding: 2px 10px;
+}
+
+table {
+    width: 100%;
+}
+table th,
+table td {
+    padding: 3px 5px;
+}
+
+nav li {
+    display: inline-block;
+}
+nav li + li {
+    border-left: 1px solid gray;
+    margin-left: 10px;
+    padding-left: 10px;
+}
+
+/*
+ Custom classed styles
+ */
+
+table.bordered {
+    border-collapse: collapse;
+    border-spacing: 0;
+}
+table.bordered,
+table.bordered th,
+table.bordered td {
+    border: solid 1px gray;
+}
+
+ul.nostyle {
+    list-style-type: none;
+    margin: 0;
+}
+
+.alert {
+    border-radius: 5px;
+    padding: 10px;
+    margin: 5px auto;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+}
+.alert::before {
+    display: block;
+    height: 100%;
+    margin-right: 10px;
+}
+
+.alert.error {
+    color: #b52d2d;
+    border: solid 1px #b52d2d;
+    background-color: #fdbdbd;
+}
+.alert.error::before {
+    content: "⛔";
+}
+
+.alert.success {
+    color: #1b753f;
+    border: solid 1px #1b753f;
+    background-color: #caffd8;
+}
+.alert.success::before {
+    content: "✅";
 }

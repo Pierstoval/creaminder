@@ -19,12 +19,27 @@ export default function () {
     return (
         <>
             <p>Latest activities:</p>
-            {!list.length
-                ? 'No elements yet!'
-                : (<ul>
-                    {list.map((activity, index) => <li key={index}>{activity.formattedDate} - {activity.description}</li>)}
-                </ul>)
-            }
+
+            <table className="bordered">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Date</th>
+                        <th>Details</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {!list.length
+                    ? (<tr>No elements yet!</tr>)
+                    : list.map((activity, index) => (
+                        <tr key={index}>
+                            <td>{activity.id}</td>
+                            <td>{activity.formattedDate}</td>
+                            <td>{activity.description}</td>
+                        </tr>
+                    ))}
+                </tbody>
+            </table>
         </>
     );
 }
