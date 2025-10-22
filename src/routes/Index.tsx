@@ -1,43 +1,30 @@
-import {Component, JSX} from "react";
+import {useEffect, useState} from "react";
 import Activity from "../lib/entities/Activity.ts";
 import api_call from "../lib/api_call.ts";
 
-export default class Index extends Component<any, any> {
+export default function () {
+    console.info('mounting index');
 
-    constructor(props: any) {
-        super(props);
+    const [list, setList] = useState([]);
 
-        this.state = {
-            activities: [],
-        };
-    }
+    useEffect(() => {
+        api_call("activity_list").then((activities_input: Array<object>) => {
+            const activities = activities_input.map((object) => Activity.from(object));
+            console.info('activities', activities);
+            setList(activities);
+        })
+            .catch(e => console.error(e));
+    }, []);
 
-    componentDidMount() {
-        api_call("list_activities").then((activities: Array<Activity>) => {
-            this.setState({
-                activities: activities
-            });
-        });
-    }
-
-    render(): JSX.Element {
-        const list = this.state.activities;
-        // let [list, setList] = useState<Array<Activity>>([]);
-
-        //     api_call("list_activities").then((activities: Array<Activity>) => {
-        //         console.info('received activities', activities);
-        //         setList(activities);
-        //     });
-        return (
-            <>
-                <p>List:</p>
-                {!list.length
-                    ? 'No elements yet!'
-                    : (<ul>
-                        {list.map((activity, index) => <li key={index}>{activity.id} - {activity.title}</li>)}
-                    </ul>)
-                }
-            </>
-        );
-    }
+    return (
+        <>
+            <p>Latest activities:</p>
+            {!list.length
+                ? 'No elements yet!'
+                : (<ul>
+                    {list.map((activity, index) => <li key={index}>{activity.formattedDate} - {activity.description}</li>)}
+                </ul>)
+            }
+        </>
+    );
 }

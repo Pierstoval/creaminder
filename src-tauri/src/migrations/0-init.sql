@@ -1,6 +1,9 @@
 CREATE TABLE `activities` (
     `id` INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-    `title` VARCHAR(255) NOT NULL
+    `description` TEXT NOT NULL,
+    `date` VARCHAR(255) NOT NULL
 );
 
-INSERT INTO activities (id, title) VALUES (1, 'Test item');
+INSERT INTO activities (id, description, `date`) VALUES
+    (1, 'Test item', strftime('%Y-%m-%dT%H:%M:%S+0000', 'now'))
+;

@@ -19,8 +19,6 @@ mod migrations;
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
-    dbg!("Running project.");
-
     let mut conn = get_database_connection();
 
     let migrations = rusqlite_migration::Migrations::new(migrations::migrations());
@@ -30,7 +28,8 @@ pub fn run() {
         .manage(Mutex::new(conn))
         .plugin(tauri_plugin_opener::init())
         .invoke_handler(tauri::generate_handler![
-            crate::command::activities::list_activities,
+            crate::command::activities::activity_list,
+            crate::command::activities::activity_create,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
