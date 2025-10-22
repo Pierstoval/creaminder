@@ -21,5 +21,8 @@ pub(crate) fn activity_create(conn_state: State<'_, Mutex<Connection>>,
     let conn = conn_state.inner().lock().unwrap();
     let conn = conn.deref();
 
+    dbg!(&description);
+    dbg!(&date);
+
     activity::create(conn, description, date)
 }

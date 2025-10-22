@@ -37,7 +37,6 @@ pub(crate) fn find_all(conn: &Connection) -> Vec<Activity> {
                 break;
             }
             Some(activity) => {
-                dbg!(&activity);
                 let activity = activity.expect("Could not deserialize Activity item");
                 activities.push(activity);
             }
@@ -69,6 +68,7 @@ pub(crate) fn create(conn: &Connection, description: Option<String>, date: Optio
 
         date_rfc.unwrap().into()
     };
+    dbg!(&date_rfc);
 
     let mut stmt = conn.prepare("INSERT INTO activities ( description, date ) VALUES ( :description, :date )").unwrap();
 
