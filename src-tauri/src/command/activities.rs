@@ -23,3 +23,24 @@ pub(crate) fn activity_create(conn_state: State<'_, Mutex<Connection>>,
 
     activity::create(conn, description, date)
 }
+
+#[tauri::command(rename_all = "snake_case")]
+pub(crate) fn activity_delete(conn_state: State<'_, Mutex<Connection>>,
+    id: i32,
+) -> Result<usize, String> {
+    let conn = conn_state.inner().lock().unwrap();
+    let conn = conn.deref();
+
+    dbg!("deleting");
+    dbg!(&id);
+
+    let res = activity::delete(conn, id);
+
+    if res.is_ok() {
+        return Ok(res.unwrap());
+    }
+
+    let err = res.unwrap_err();
+
+    Err(String::from(err.to_string()))
+}

@@ -30,6 +30,7 @@ pub fn run() {
         .invoke_handler(tauri::generate_handler![
             crate::command::activities::activity_list,
             crate::command::activities::activity_create,
+            crate::command::activities::activity_delete,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

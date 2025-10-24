@@ -37,6 +37,22 @@ nav li + li {
     margin-left: 10px;
     padding-left: 10px;
 }
+button, input[type="submit"] {
+    border: solid 1px #ccc;
+    background: #ddd;
+    color: black;
+    border-radius: 3px;
+    padding: 3px 6px;
+}
+button:hover, input[type="submit"]:hover {
+    border: solid 1px #ddd;
+    background: #eee;
+    cursor: pointer;
+}
+button:active, input[type="submit"]:active {
+    border: solid 1px #bbb;
+    background: #ccc;
+}
 
 /*
  Custom classed styles

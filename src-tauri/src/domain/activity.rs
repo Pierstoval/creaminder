@@ -98,3 +98,9 @@ pub(crate) fn create(conn: &Connection, description: Option<String>, date: Optio
 
     Err(data.unwrap_err().to_string())
 }
+
+pub(crate) fn delete(conn: &Connection, id: i32) -> Result<usize, rusqlite::Error> {
+    let mut stmt = conn.prepare("DELETE FROM activities WHERE id = :id")?;
+
+    stmt.execute(named_params! {":id": &id})
+}
