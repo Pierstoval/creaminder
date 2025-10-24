@@ -5,9 +5,11 @@ mod config;
 mod db;
 mod command {
     pub(crate) mod activities;
+    pub(crate) mod activity_types;
 }
 mod domain {
     pub(crate) mod activity;
+    pub(crate) mod activity_type;
 }
 mod migrations;
 
@@ -31,6 +33,11 @@ pub fn run() {
             crate::command::activities::activity_list,
             crate::command::activities::activity_create,
             crate::command::activities::activity_delete,
+            crate::command::activity_types::activity_type_list,
+            crate::command::activity_types::activity_type_create,
+            crate::command::activity_types::activity_type_update,
+            crate::command::activity_types::activity_type_find_by_id,
+            crate::command::activity_types::activity_type_delete,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

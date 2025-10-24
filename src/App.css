@@ -5,6 +5,8 @@
     margin: 0;
     padding: 0;
     box-sizing: border-box;
+    font-size: 16px;
+    line-height: 16px;
 }
 
 body {
@@ -17,7 +19,13 @@ form label[required]::after {
     display: inline;
 }
 
-input {
+a, a:visited {
+    display: inline-block;
+    color: #7171ff;
+    text-decoration: none;
+}
+
+input, textarea {
     padding: 2px 10px;
 }
 
@@ -37,21 +45,45 @@ nav li + li {
     margin-left: 10px;
     padding-left: 10px;
 }
-button, input[type="submit"] {
+button + button,
+button + input[type="submit"],
+button + .btn,
+input[type="submit"] + button,
+input[type="submit"] + input[type="submit"],
+input[type="submit"] + .btn,
+.btn + button,
+.btn + input[type="submit"],
+.btn + .btn
+{
+    margin-left: 6px;
+}
+button,
+input[type="submit"],
+.btn
+{
     border: solid 1px #ccc;
     background: #ddd;
     color: black;
     border-radius: 3px;
     padding: 3px 6px;
 }
-button:hover, input[type="submit"]:hover {
+button:hover,
+input[type="submit"]:hover,
+.btn:hover
+{
     border: solid 1px #ddd;
     background: #eee;
     cursor: pointer;
 }
-button:active, input[type="submit"]:active {
+button:active,
+input[type="submit"]:active,
+.btn:active
+{
     border: solid 1px #bbb;
     background: #ccc;
+}
+a.btn {
+    text-decoration: none;
 }
 
 /*
@@ -80,6 +112,7 @@ ul.nostyle {
     display: flex;
     flex-direction: row;
     align-items: center;
+    border: solid 1px #aaa;
 }
 .alert::before {
     display: block;
@@ -89,7 +122,7 @@ ul.nostyle {
 
 .alert.error {
     color: #b52d2d;
-    border: solid 1px #b52d2d;
+    border-color: #b52d2d;
     background-color: #fdbdbd;
 }
 .alert.error::before {
@@ -98,9 +131,41 @@ ul.nostyle {
 
 .alert.success {
     color: #1b753f;
-    border: solid 1px #1b753f;
+    border-color: #1b753f;
     background-color: #caffd8;
 }
 .alert.success::before {
     content: "✅";
+}
+
+.subnav {
+    display: flex;
+    flex-direction: row-reverse;
+}
+
+button.activity-icon {
+    color: #25324d;
+    border: solid 2px transparent;
+    background-color: #b7ccff;
+    margin-top: 5px;
+    margin-bottom: 5px;
+}
+button.activity-icon:hover {
+    color: #384767;
+    border-color: #5f83d3;
+    background-color: #d6e3ff;
+}
+button.activity-icon:active {
+    color: #566687;
+    border-color: #566687;
+    background-color: #c3cfea;
+}
+button.activity-icon.active {
+    border-color: #25324d;
+}
+button.activity-icon.active:hover {
+    border-color: #6079ac;
+}
+button.activity-icon + button.activity-icon {
+    margin-left: 5px;
 }

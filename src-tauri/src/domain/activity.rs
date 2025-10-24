@@ -11,6 +11,7 @@ pub(crate) struct Activity {
     pub(crate) id: u32,
     pub(crate) description: String,
     pub(crate) date: DateTime<Local>,
+    pub(crate) activity_type_id: Option<u32>,
 }
 
 pub(crate) fn find_all(conn: &Connection) -> Vec<Activity> {
@@ -20,7 +21,8 @@ pub(crate) fn find_all(conn: &Connection) -> Vec<Activity> {
         SELECT
             id,
             description,
-            `date`
+            `date`,
+            activity_type_id
         FROM activities
         ORDER BY id DESC
     ",
@@ -46,7 +48,59 @@ pub(crate) fn find_all(conn: &Connection) -> Vec<Activity> {
     activities
 }
 
-pub(crate) fn create(conn: &Connection, description: Option<String>, date: Option<String>) -> Result<Activity, String> {
+pub(crate) fn find_by_activity_type(conn: &Connection, activity_type_id: Option<u32>) -> Vec<Activity> {
+    let sql = match activity_type_id {
+        Some(_) => "
+        SELECT
+            id,
+            description,
+            `date`,
+            activity_type_id
+        FROM activities
+        WHERE activity_type_id = :activity_type_id
+        ORDER BY id DESC
+        ",
+        None => "
+        SELECT
+            id,
+            description,
+            `date`,
+            activity_type_id
+        FROM activities
+        ORDER BY id DESC
+        ",
+    };
+
+    let mut stmt = conn
+        .prepare(sql)
+        .expect("Could not fetch activities");
+
+    let mut activities: Vec<Activity> = Vec::new();
+
+    let rows_result = if let Some(type_id) = activity_type_id {
+        stmt.query(named_params! {":activity_type_id": type_id})
+    } else {
+        stmt.query([])
+    };
+
+    let mut rows_iter = serde_rusqlite::from_rows::<Activity>(rows_result.unwrap());
+
+    loop {
+        match rows_iter.next() {
+            None => {
+                break;
+            }
+            Some(activity) => {
+                let activity = activity.expect("Could not deserialize Activity item");
+                activities.push(activity);
+            }
+        }
+    }
+
+    activities
+}
+
+pub(crate) fn create(conn: &Connection, description: Option<String>, date: Option<String>, activity_type_id: Option<u32>) -> Result<Activity, String> {
     let description = description.unwrap_or(String::from(""));
 
     dbg!(&description);
@@ -68,16 +122,17 @@ pub(crate) fn create(conn: &Connection, description: Option<String>, date: Optio
 
     dbg!(&date_rfc);
 
-    let mut stmt = conn.prepare("INSERT INTO activities ( description, date ) VALUES ( :description, :date )").unwrap();
+    let mut stmt = conn.prepare("INSERT INTO activities ( description, date, activity_type_id ) VALUES ( :description, :date, :activity_type_id )").unwrap();
 
     stmt.execute(named_params! {
         ":description": &description.clone(),
         ":date": format!("{}", &date_rfc.format("%Y-%m-%dT%H:%M:%S%z")),
+        ":activity_type_id": &activity_type_id,
     }).unwrap();
 
     let id = conn.last_insert_rowid();
 
-    let mut stmt = conn.prepare("select id, description, date from activities where id = :id").unwrap();
+    let mut stmt = conn.prepare("select id, description, date, activity_type_id from activities where id = :id").unwrap();
 
     let mut rows = stmt
         .query(named_params! {
