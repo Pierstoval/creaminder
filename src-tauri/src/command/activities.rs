@@ -36,9 +36,6 @@ pub(crate) fn activity_delete(conn_state: State<'_, Mutex<Connection>>,
     let conn = conn_state.inner().lock().unwrap();
     let conn = conn.deref();
 
-    dbg!("deleting");
-    dbg!(&id);
-
     let res = activity::delete(conn, id);
 
     if res.is_ok() {
@@ -48,4 +45,29 @@ pub(crate) fn activity_delete(conn_state: State<'_, Mutex<Connection>>,
     let err = res.unwrap_err();
 
     Err(String::from(err.to_string()))
+}
+
+#[tauri::command(rename_all = "snake_case")]
+pub(crate) fn activity_update(
+    conn_state: State<'_, Mutex<Connection>>,
+    id: i32,
+    description: Option<String>,
+    date: Option<String>,
+    activity_type_id: Option<u32>,
+) -> Result<Activity, String> {
+    let conn = conn_state.inner().lock().unwrap();
+    let conn = conn.deref();
+
+    activity::update(conn, id, description, date, activity_type_id)
+}
+
+#[tauri::command(rename_all = "snake_case")]
+pub(crate) fn activity_find_by_id(
+    conn_state: State<'_, Mutex<Connection>>,
+    id: i32,
+) -> Result<Activity, String> {
+    let conn = conn_state.inner().lock().unwrap();
+    let conn = conn.deref();
+
+    activity::find_by_id(conn, id)
 }

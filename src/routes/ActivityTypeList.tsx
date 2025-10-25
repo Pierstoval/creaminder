@@ -4,9 +4,10 @@ import api_call from "../lib/api_call.ts";
 import Success from "../components/messages/Success.tsx";
 import Errors from "../components/messages/Errors.tsx";
 import {Link} from "react-router";
+import {useTranslation} from "react-i18next";
 
-export default function ActivityTypeList() {
-    console.info('mounting activity type list');
+export function ActivityTypeList() {
+    const {t} = useTranslation();
 
     const [messages, setMessages] = useState("");
     const [errors, setErrors] = useState("");
@@ -16,55 +17,56 @@ export default function ActivityTypeList() {
         api_call("activity_type_list")
             .then((activity_types_input: Array<object>) => {
                 const activity_types = activity_types_input.map((object) => ActivityType.from(object));
-                console.info('activity types', activity_types);
                 setList(activity_types);
             })
-            .catch(e => setErrors(e.messages));
+            .catch(e => setErrors(t('error_api_generic')+"\n"+e.toString()));
     }
 
     useEffect(() => {
         fetchList();
     }, []);
 
-    function deleteActivityType(id: number) {
-        if (!confirm("Delete this activity type? This may affect existing activities.")) {
+    function deleteActivityType(activityType: ActivityType) {
+        if (!confirm(t("activity_type_delete_confirm"))) {
             return;
         }
 
-        api_call("activity_type_delete", {id: id})
+        api_call("activity_type_delete", {id: activityType.id})
             .then((res) => {
                 if (res < 1) {
-                    setErrors('This activity type was not found.');
+                    setErrors(t('generic_item_not_found'));
                 } else {
-                    setMessages('Successfully removed activity type number "' + id + '"');
+                    setMessages(t('activity_type_removed_message', {name: activityType.name ||'no name'}));
                 }
                 fetchList();
             })
-            .catch(e => setErrors(e.message));
+            .catch(e => setErrors(t('error_api_generic')+"\n"+e.toString()));
     }
 
     return (
         <>
-            <h2>Activity Types</h2>
+            <h2>{t('activity_types_title')}</h2>
 
             <nav className="subnav">
-                <Link to="/activity-type/create" className="btn">➕ New activity type</Link>
+                <Link to="/activity-type/create" className="btn">➕ {t('activity_type_new')}</Link>
             </nav>
 
-            <Errors messages={errors} />
-            <Success messages={messages} />
+            <Errors messages={errors}/>
+            <Success messages={messages}/>
             <table className="bordered">
                 <thead>
-                    <tr>
-                        <th>#</th>
-                        <th>Name</th>
-                        <th>Description</th>
-                        <th></th>
-                    </tr>
+                <tr>
+                    <th>#</th>
+                    <th>{t('field_name')}</th>
+                    <th>{t('field_description')}</th>
+                    <th></th>
+                </tr>
                 </thead>
                 <tbody>
                 {!list.length
-                    ? (<tr><td colSpan="5">No activity types yet!</td></tr>)
+                    ? (<tr>
+                        <td colSpan="5">{t('activity_type_no_item_message')}</td>
+                    </tr>)
                     : list.map((activityType, index) => (
                         <tr key={index}>
                             <td>{activityType.id}</td>
@@ -72,7 +74,7 @@ export default function ActivityTypeList() {
                             <td>{activityType.description || '-'}</td>
                             <td>
                                 <Link to={`/activity-type/edit/${activityType.id}`} className="btn">✏️</Link>
-                                <button type="button" onClick={() => deleteActivityType(activityType.id)}>🗑</button>
+                                <button type="button" onClick={() => deleteActivityType(activityType)}>🗑</button>
                             </td>
                         </tr>
                     ))}

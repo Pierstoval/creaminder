@@ -1,6 +1,4 @@
 export default function ActivityTypeIcon({key, activityType, onClick, isActive}) {
-    console.info('mounting ActivityTypeIcon');
-
     const className = `activity-icon ${isActive ? 'active' : ''}`;
 
     return (<>

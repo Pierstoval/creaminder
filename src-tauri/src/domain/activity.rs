@@ -103,15 +103,11 @@ pub(crate) fn find_by_activity_type(conn: &Connection, activity_type_id: Option<
 pub(crate) fn create(conn: &Connection, description: Option<String>, date: Option<String>, activity_type_id: Option<u32>) -> Result<Activity, String> {
     let description = description.unwrap_or(String::from(""));
 
-    dbg!(&description);
-    dbg!(&date);
     let date_rfc: DateTime<Local>;
     if date.is_some() {
         let checked_date = DateTime::parse_from_str(&date.clone().unwrap(), "%Y-%m-%dT%H:%M:%S%z");
 
         if checked_date.is_err() {
-            dbg!("Date is invalid⛔");
-            dbg!(&checked_date);
             return Err(checked_date.unwrap_err().to_string());
         }
 
@@ -119,8 +115,6 @@ pub(crate) fn create(conn: &Connection, description: Option<String>, date: Optio
     } else {
         date_rfc = Local::now();
     }
-
-    dbg!(&date_rfc);
 
     let mut stmt = conn.prepare("INSERT INTO activities ( description, date, activity_type_id ) VALUES ( :description, :date, :activity_type_id )").unwrap();
 
@@ -146,6 +140,94 @@ pub(crate) fn create(conn: &Connection, description: Option<String>, date: Optio
         .expect("No item found with this ID.");
 
     let data: SerdeResult<Activity> = serde_rusqlite::from_row::<Activity>(row);
+
+    if data.is_ok() {
+        return Ok(data.unwrap());
+    }
+
+    Err(data.unwrap_err().to_string())
+}
+
+pub(crate) fn update(
+    conn: &Connection,
+    id: i32,
+    description: Option<String>,
+    date: Option<String>,
+    activity_type_id: Option<u32>,
+) -> Result<Activity, String> {
+    let description = description.unwrap_or(String::from(""));
+
+    let date_rfc: DateTime<Local>;
+    if let Some(date_str) = date {
+        let checked_date = DateTime::parse_from_str(&date_str, "%Y-%m-%dT%H:%M:%S%z");
+
+        if checked_date.is_err() {
+            return Err(checked_date.unwrap_err().to_string());
+        }
+
+        date_rfc = checked_date.unwrap().into();
+    } else {
+        date_rfc = Local::now();
+    }
+
+    let mut stmt = conn.prepare("UPDATE activities SET description = :description, date = :date, activity_type_id = :activity_type_id WHERE id = :id").unwrap();
+
+    let result = stmt.execute(named_params! {
+        ":id": &id,
+        ":description": &description,
+        ":date": format!("{}", &date_rfc.format("%Y-%m-%dT%H:%M:%S%z")),
+        ":activity_type_id": &activity_type_id,
+    });
+
+    if let Err(e) = result {
+        return Err(e.to_string());
+    }
+
+    let rows_affected = result.unwrap();
+    if rows_affected == 0 {
+        return Err("Activity not found".to_string());
+    }
+
+    let mut stmt = conn.prepare("SELECT id, description, date, activity_type_id FROM activities WHERE id = :id").unwrap();
+
+    let mut rows = stmt
+        .query(named_params! {
+            ":id": &id,
+        })
+        .unwrap();
+
+    let row = rows
+        .next()
+        .expect("Could not retrieve query rows.")
+        .expect("No item found with this ID.");
+
+    let data: SerdeResult<Activity> = serde_rusqlite::from_row::<Activity>(row);
+
+    if data.is_ok() {
+        return Ok(data.unwrap());
+    }
+
+    Err(data.unwrap_err().to_string())
+}
+
+pub(crate) fn find_by_id(conn: &Connection, id: i32) -> Result<Activity, String> {
+    let mut stmt = conn.prepare("SELECT id, description, date, activity_type_id FROM activities WHERE id = :id").unwrap();
+
+    let mut rows = stmt
+        .query(named_params! {
+            ":id": &id,
+        })
+        .unwrap();
+
+    let row = rows
+        .next()
+        .expect("Could not retrieve query rows.");
+
+    if row.is_none() {
+        return Err("Activity not found".to_string());
+    }
+
+    let data: SerdeResult<Activity> = serde_rusqlite::from_row::<Activity>(row.unwrap());
 
     if data.is_ok() {
         return Ok(data.unwrap());

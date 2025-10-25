@@ -13,7 +13,9 @@ export default class Activity {
     }
 
     get formattedDate() {
-        return this.date.toLocaleDateString()+" "+this.date.toLocaleTimeString()+"+0000";
+        return this.date.toLocaleDateString()+" "+this.date.toLocaleTimeString([], {
+            timeStyle: 'short',
+        });
     }
 
     static from(object: object) {

@@ -1,16 +1,17 @@
 import api_call from "../lib/api_call.ts";
 import {useEffect, useState} from "react";
 import {useParams, useNavigate} from "react-router";
+import {useTranslation} from "react-i18next";
 import Errors from '../components/messages/Errors.tsx';
 import Success from '../components/messages/Success.tsx';
 
 export default function ActivityTypeEdit() {
+    const { t } = useTranslation();
     const { id } = useParams();
     const navigate = useNavigate();
 
     let [errors, setErrors] = useState('');
     let [success, setSuccess] = useState('');
-    let [loading, setLoading] = useState(true);
 
     let [name, setName] = useState('');
     let [description, setDescription] = useState('');
@@ -21,17 +22,14 @@ export default function ActivityTypeEdit() {
                 .then((activityType: any) => {
                     setName(activityType.name);
                     setDescription(activityType.description || '');
-                    setLoading(false);
                 })
                 .catch((e) => {
-                    setErrors(e.toString());
-                    setLoading(false);
+                    setErrors(t('error_api_generic')+"\n"+e.toString());
                 });
         }
     }, [id]);
 
     async function update(formData: FormData): Promise<unknown> {
-        console.info('submitting form');
         const data = {
             id: parseInt(id!),
             name: formData.get('name')?.toString(),
@@ -40,40 +38,35 @@ export default function ActivityTypeEdit() {
         try {
             setErrors('');
             setSuccess('');
-            const result = await api_call('activity_type_update', data);
-            console.info('success:', result);
-            setSuccess('Activity type updated successfully!');
+            await api_call('activity_type_update', data);
+            setSuccess(t('activity_type_updated_message'));
         } catch (e) {
-            setErrors(e.toString());
+            setErrors(t('error_api_generic')+"\n"+e.toString());
         }
-    }
-
-    if (loading) {
-        return <div>Loading...</div>;
     }
 
     return (
         <>
-            <h2>Edit Activity Type</h2>
+            <h2>{t('activity_type_title_edit')}</h2>
 
             <form action={update}>
                 <table>
                     <tbody>
                         <tr>
-                            <td><label htmlFor="name" required>Name</label></td>
-                            <td><input type="text" name="name" placeholder="Activity Type Name" required value={name} onChange={(e) => setName(e.target.value)} /></td>
+                            <td><label htmlFor="name" required>{t('field_name')}</label></td>
+                            <td><input type="text" name="name" placeholder={t('field_name')} required value={name} onChange={(e) => setName(e.target.value)} /></td>
                         </tr>
                         <tr>
-                            <td><label htmlFor="description">Description</label></td>
+                            <td><label htmlFor="description">{t('field_description')}</label></td>
                             <td>
-                                <textarea name="description" placeholder="Description (optional)" value={description} onChange={(e) => setDescription(e.target.value)} />
+                                <textarea name="description" placeholder={t('field_description')} value={description} onChange={(e) => setDescription(e.target.value)} />
                             </td>
                         </tr>
                         <tr>
                             <td></td>
                             <td>
-                                <button type="submit">Update</button>
-                                <button type="button" onClick={() => navigate('/activity-type/list')}>Back</button>
+                                <button type="submit">{t('button_update')}</button>
+                                <button type="button" onClick={() => navigate('/activity-type/list')}>{t('button_back')}</button>
                             </td>
                         </tr>
                     </tbody>

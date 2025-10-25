@@ -32,6 +32,8 @@ pub fn run() {
         .invoke_handler(tauri::generate_handler![
             crate::command::activities::activity_list,
             crate::command::activities::activity_create,
+            crate::command::activities::activity_update,
+            crate::command::activities::activity_find_by_id,
             crate::command::activities::activity_delete,
             crate::command::activity_types::activity_type_list,
             crate::command::activity_types::activity_type_create,

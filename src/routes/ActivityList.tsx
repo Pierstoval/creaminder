@@ -6,9 +6,10 @@ import api_call from "../lib/api_call.ts";
 import Success from "../components/messages/Success.tsx";
 import Errors from "../components/messages/Errors.tsx";
 import ActivityTypesIcons from "../components/ActivityTypesIcons.tsx";
+import {useTranslation} from "react-i18next";
 
 export default function ActivityList() {
-    console.info('mounting index');
+    const {t} = useTranslation();
 
     const [messages, setMessages] = useState("");
     const [errors, setErrors] = useState("");
@@ -21,20 +22,18 @@ export default function ActivityList() {
         api_call("activity_list", params)
             .then((activities_input: Array<object>) => {
                 const activities = activities_input.map((object) => Activity.from(object));
-                console.info('activities', activities);
                 setList(activities);
             })
-            .catch(e => setErrors(e.messages));
+            .catch(e => setErrors(t('error_api_generic')+"\n"+e.toString()));
     }
 
     function fetchActivityTypes() {
         api_call("activity_type_list")
             .then((activity_types_input: Array<object>) => {
                 const activity_types = activity_types_input.map((object) => ActivityType.from(object));
-                console.info('activity types', activity_types);
                 setActivityTypes(activity_types);
             })
-            .catch(e => setErrors(e.messages));
+            .catch(e => setErrors(t('error_api_generic')+"\n"+e.toString()));
     }
 
     useEffect(() => {
@@ -46,33 +45,33 @@ export default function ActivityList() {
         fetchList();
     }, [selectedActivityType]);
 
-    function deleteActivity(id: number) {
-        if (!confirm("Delete?")) {
+    function deleteActivity(activity: Activity) {
+        if (!confirm(t('activity_delete_confirm'))) {
             return;
         }
 
-        api_call("activity_delete", {id: id})
+        api_call("activity_delete", {id: activity.id})
             .then((res) => {
                 if (res < 1) {
-                    setErrors('This item was not found.');
+                    setErrors(t('generic_item_not_found'));
                 } else {
-                    setMessages('Successfully removed activity number "' + id + '"');
+                    setMessages(t('activity_removed_message', {id: activity.id}));
                 }
                 fetchList();
             })
-            .catch(e => setErrors(e.message));
+            .catch(e => setErrors(t('error_api_generic')+"\n"+e.toString()));
     }
 
     return (
         <>
-            <h2>Activities</h2>
+            <h2>{t('activities_title')}</h2>
 
             <nav className="subnav">
-                <Link to="/activity/create" className="btn">➕ New activity</Link>
+                <Link to="/activity/create" className="btn">➕ {t('activity_new')}</Link>
             </nav>
 
             <div>
-                <label htmlFor="activityTypeFilter">Filter by Activity Type: </label>
+                <label htmlFor="activityTypeFilter">{t('activity_filter_by_type')}</label>
                 <ActivityTypesIcons activeId={selectedActivityType} onClick={(activityTypeId) => setSelectedActivityType(activityTypeId)} />
             </div>
 
@@ -82,9 +81,9 @@ export default function ActivityList() {
                 <thead>
                 <tr>
                     <th>#</th>
-                    <th>Date</th>
-                    <th>Details</th>
-                    <th>Type</th>
+                    <th>{t('field_date')}</th>
+                    <th>{t('field_description')}</th>
+                    <th>{t('field_type')}</th>
                     <th></th>
                 </tr>
                 </thead>
@@ -103,7 +102,8 @@ export default function ActivityList() {
                                 }
                             </td>
                             <td>
-                                <button type="button" onClick={() => deleteActivity(activity.id)}>🗑</button>
+                                <Link to={`/activity/edit/${activity.id}`} className="btn">✏️</Link>
+                                <button type="button" onClick={() => deleteActivity(activity)}>🗑</button>
                             </td>
                         </tr>
                     ))}
