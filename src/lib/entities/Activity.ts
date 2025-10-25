@@ -5,7 +5,7 @@ export default class Activity {
     public date!: Date;
     public activity_type_id!: number | null;
 
-    constructor(id: number, description: string, date: String, activity_type_id: number | null = null) {
+    constructor(id: number, description: string, date: string, activity_type_id: number | null = null) {
         this.id = id;
         this.description = description;
         this.date = new Date(date);
@@ -18,14 +18,27 @@ export default class Activity {
         });
     }
 
-    static from(object: object) {
-        if (!object.id) {
+    static from(object: unknown) {
+        const input = {...(typeof object === 'object' ? object : {})} as Record<string, string>;
+        if (!input?.id) {
             throw new Error('No id provided');
         }
-        if (!object.date) {
+        if (!input?.date) {
             throw new Error('No date provided');
         }
+        if (!input?.activity_type_id) {
+            throw new Error('No activity type ID provided');
+        }
 
-        return new Activity(object.id, object.description || '', object.date, object.activity_type_id || null);
+        return new Activity(Number(input.id), input?.description || '', input.date, Number(input.activity_type_id));
+    }
+
+    asObject(): Record<string, unknown> {
+        return {
+            id: this.id,
+            description: this.description,
+            date: this.date,
+            activity_type_id: this.activity_type_id,
+        };
     }
 }

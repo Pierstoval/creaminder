@@ -15,7 +15,7 @@ export default function ActivityEdit() {
     let [activity, setActivity] = useState<null|Activity>(null);
 
     useEffect(() => {
-        api_call('activity_find_by_id', { id: parseInt(id?.toString() || '0') })
+        api_call<Activity>('activity_find_by_id', { id: Number(id || 0) })
             .then((activity) => {
                 if (!activity) {
                     error(t('generic_item_not_found'));
@@ -24,7 +24,7 @@ export default function ActivityEdit() {
                 setActivity(activity as Activity);
             })
             .catch((e) => {
-                error(t('error_api_generic')+"\n"+e.toString());
+                error(t('error_api_generic')+"\n"+e?.toString());
             });
     }, [id]);
 
@@ -33,9 +33,9 @@ export default function ActivityEdit() {
         return;
     }
 
-    async function onSubmit(newActivity: Activity): Promise<void> {
+    async function onSubmit(data: Activity): Promise<void> {
         try {
-            await api_call('activity_update', newActivity);
+            const newActivity: Activity = await api_call<Activity>('activity_update', {...data});
             await navigate(`/activity/list`);
             let identifier = (newActivity.description||newActivity.id||'').toString();
             if (identifier.length > 0) {
@@ -43,7 +43,7 @@ export default function ActivityEdit() {
             }
             success(t('activity_updated_message', {name: identifier}));
         } catch (e) {
-            error(t('error_api_generic')+"\n"+e.toString());
+            error(t('error_api_generic')+"\n"+e?.toString());
         }
     }
 

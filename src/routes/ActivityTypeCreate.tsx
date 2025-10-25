@@ -11,7 +11,7 @@ export default function ActivityTypeCreate() {
     let [name, setName] = useState('');
     let [description, setDescription] = useState('');
 
-    async function create(formData: FormData): Promise<unknown> {
+    async function create(formData: FormData): Promise<void> {
         const data = {
             name: formData.get('name')?.toString(),
             description: formData.get('description')?.toString() || null,
@@ -21,7 +21,7 @@ export default function ActivityTypeCreate() {
             await navigate(`/activity-type/list`);
             success(t('activity_type_created_message'));
         } catch (e) {
-            error(t('error_api_generic')+"\n"+e.toString());
+            error(t('error_api_generic')+"\n"+e?.toString());
         }
     }
 
@@ -33,7 +33,7 @@ export default function ActivityTypeCreate() {
                 <table>
                     <tbody>
                         <tr>
-                            <td><label htmlFor="name" required>{t('field_name')}</label></td>
+                            <td><label htmlFor="name" className="required">{t('field_name')}</label></td>
                             <td><input type="text" name="name" placeholder={t('field_name')} required value={name} onChange={(e) => setName(e.target.value)} /></td>
                         </tr>
                         <tr>

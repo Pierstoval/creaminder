@@ -3,7 +3,7 @@ import {Link} from "react-router";
 import {useTranslation} from "react-i18next";
 
 import Activity from "../lib/entities/Activity.ts";
-import ActivityType from "../lib/entities/ActivityType.ts";
+import ActivityType, {getActivityTypesList} from "../lib/entities/ActivityType.ts";
 import api_call from "../lib/api_call.ts";
 import ActivityTypesIcons from "../lib/components/ActivityTypesIcons.tsx";
 import {success, error} from '../stores/flash_messages.ts';
@@ -11,32 +11,23 @@ import {success, error} from '../stores/flash_messages.ts';
 export default function ActivityList() {
     const {t} = useTranslation();
 
-    const [list, setList] = useState([]);
-    const [activityTypes, setActivityTypes] = useState([]);
-    const [selectedActivityType, setSelectedActivityType] = useState("");
+    const [activities, setActivities] = useState<Activity[]>([]);
+    const [activityTypes, setActivityTypes] = useState<ActivityType[]>([]);
+    const [selectedActivityType, setSelectedActivityType] = useState<number>(0);
 
     function fetchList() {
-        const params = selectedActivityType ? { activity_type_id: parseInt(selectedActivityType) } : {};
-        api_call("activity_list", params)
-            .then((activities_input: Array<object>) => {
-                const activities = activities_input.map((object) => Activity.from(object));
-                setList(activities);
+        const params = selectedActivityType ? { activity_type_id: selectedActivityType } : {};
+        api_call<Activity[]>("activity_list", params)
+            .then((activities_input: Activity[]): void => {
+                if (!Array.isArray(activities_input)) { throw new Error('API type error'); }
+                setActivities(activities_input.map((object: unknown) => Activity.from(object)));
             })
-            .catch(e => error(t('error_api_generic')+"\n"+e.toString()));
-    }
-
-    function fetchActivityTypes() {
-        api_call("activity_type_list")
-            .then((activity_types_input: Array<object>) => {
-                const activity_types = activity_types_input.map((object) => ActivityType.from(object));
-                setActivityTypes(activity_types);
-            })
-            .catch(e => error(t('error_api_generic')+"\n"+e.toString()));
+            .catch(e => error(t('error_api_generic')+"\n"+e?.toString()));
     }
 
     useEffect(() => {
         fetchList();
-        fetchActivityTypes();
+        getActivityTypesList().then(list => setActivityTypes(list)).catch(e => error(e.toString()));
     }, []);
 
     useEffect(() => {
@@ -50,14 +41,14 @@ export default function ActivityList() {
 
         api_call("activity_delete", {id: activity.id})
             .then((res) => {
-                if (res < 1) {
+                if (Number(res) < 1) {
                     error(t('generic_item_not_found'));
                 } else {
                     success(t('activity_removed_message', {id: activity.id}));
                 }
                 fetchList();
             })
-            .catch(e => error(t('error_api_generic')+"\n"+e.toString()));
+            .catch(e => error(t('error_api_generic')+"\n"+e?.toString()));
     }
 
     return (
@@ -70,7 +61,7 @@ export default function ActivityList() {
 
             <div>
                 <label htmlFor="activityTypeFilter">{t('activity_filter_by_type')}</label>
-                <ActivityTypesIcons activeId={selectedActivityType} onClick={(activityTypeId) => setSelectedActivityType(activityTypeId)} />
+                <ActivityTypesIcons activeId={selectedActivityType} onClick={(activityTypeId: number) => setSelectedActivityType(activityTypeId)} />
             </div>
 
             <table className="bordered">
@@ -84,9 +75,9 @@ export default function ActivityList() {
                 </tr>
                 </thead>
                 <tbody>
-                {!list.length
-                    ? (<tr><td colSpan="5">No elements yet!</td></tr>)
-                    : list.map((activity, index) => (
+                {!activities.length
+                    ? (<tr><td colSpan={5}>No elements yet!</td></tr>)
+                    : activities.map((activity, index) => (
                         <tr key={index}>
                             <td>{activity.id}</td>
                             <td>{activity.formattedDate}</td>

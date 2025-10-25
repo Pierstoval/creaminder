@@ -17,12 +17,6 @@ body {
     padding: 20px;
 }
 
-form label[required]::after {
-    content: " *";
-    color: red;
-    display: inline;
-}
-
 a, a:visited {
     display: inline-block;
     color: #7171ff;
@@ -57,6 +51,11 @@ nav li + li {
     margin-left: 10px;
     padding-left: 10px;
 }
+
+/*
+ Special case: buttons that can be links, or vice-versa
+ */
+
 button + button,
 button + .btn,
 .btn + button,
@@ -93,6 +92,12 @@ a.btn {
 /*
  Custom classed styles
  */
+
+form label.required::after {
+    content: " *";
+    color: red;
+    display: inline;
+}
 
 .nobg {
     background-color: transparent;

@@ -20,12 +20,12 @@ export default function ActivityTypeEdit() {
                     setDescription(activityType.description || '');
                 })
                 .catch((e) => {
-                    error(t('error_api_generic')+"\n"+e.toString());
+                    error(t('error_api_generic')+"\n"+e?.toString());
                 });
         }
     }, [id]);
 
-    async function update(formData: FormData): Promise<unknown> {
+    async function update(formData: FormData): Promise<void> {
         const data = {
             id: parseInt(id!),
             name: formData.get('name')?.toString(),
@@ -36,7 +36,7 @@ export default function ActivityTypeEdit() {
             success(t('activity_type_updated_message'));
             await navigate(`/activity-type/list`);
         } catch (e) {
-            error(t('error_api_generic')+"\n"+e.toString());
+            error(t('error_api_generic')+"\n"+e?.toString());
         }
     }
 
@@ -48,7 +48,7 @@ export default function ActivityTypeEdit() {
                 <table>
                     <tbody>
                         <tr>
-                            <td><label htmlFor="name" required>{t('field_name')}</label></td>
+                            <td><label htmlFor="name" className="required">{t('field_name')}</label></td>
                             <td><input type="text" name="name" placeholder={t('field_name')} required value={name} onChange={(e) => setName(e.target.value)} /></td>
                         </tr>
                         <tr>

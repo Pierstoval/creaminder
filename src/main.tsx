@@ -1,3 +1,4 @@
+// @ts-ignore : this import is apparently no longer necessary, but it's still kept for IDE compatibility.
 import React from "react";
 import ReactDOM from "react-dom/client";
 import {BrowserRouter, Route, Routes} from "react-router";
@@ -16,11 +17,8 @@ import ActivityTypeEdit from "./routes/ActivityTypeEdit.tsx";
 import ActivityEdit from "./routes/ActivityEdit.tsx";
 
 i18n
-    .use(initReactI18next) // passes i18n down to react-i18next
+    .use(initReactI18next)
     .init({
-        // the translations
-        // (tip move them in a JSON file and import them,
-        // or even better, manage them via a UI: https://react.i18next.com/guides/multiple-translation-files#manage-your-translations-with-a-management-gui)
         resources: {
             en: {
                 translation: en

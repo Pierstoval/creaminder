@@ -1,12 +1,14 @@
-import {invoke} from "@tauri-apps/api/core";
+import {invoke, InvokeArgs} from "@tauri-apps/api/core";
+
+type DefaultApiCallResult = string|Array<unknown>|{[key: string]: unknown}|void;
 
 /**
  * @return {Promise} With a JSON-parsed version of the expected data.
  */
-export default function api_call(
+export default function api_call<O = DefaultApiCallResult>(
 	command: string,
-	params: {[key: string]: unknown} = {},
-): Promise<string|Array<unknown>|{[key: string]: unknown}> {
+	params?: InvokeArgs|undefined,
+): Promise<O> {
 	if (typeof window !== 'undefined') {
 		console.info('Api call', command, params);
 		return invoke(command, params);

@@ -9,17 +9,17 @@ export default function ActivityCreate() {
     const { t } = useTranslation();
     const navigate = useNavigate();
 
-    async function onSubmit(activity: Activity): Promise<unknown> {
+    async function onSubmit(data: Activity): Promise<void> {
         try {
-            await api_call('activity_create', activity);
+            const newActivity = await api_call<Activity>('activity_create', data.asObject());
             await navigate(`/activity/list`);
-            let identifier = (activity.description||activity.id||'').toString();
+            let identifier = (newActivity.description||newActivity.id||'').toString();
             if (identifier.length > 0) {
                 identifier = `"${identifier}"`;
             }
             success(t('activity_created_message', {name: identifier}));
         } catch (e) {
-            error(t('error_api_generic')+"\n"+e.toString());
+            error(t('error_api_generic')+"\n"+e?.toString());
         }
     }
 

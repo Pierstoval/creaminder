@@ -1,5 +1,5 @@
 import {useEffect, useState} from "react";
-import ActivityType from "../lib/entities/ActivityType.ts";
+import ActivityType, {getActivityTypesList} from "../lib/entities/ActivityType.ts";
 import api_call from "../lib/api_call.ts";
 import {Link} from "react-router";
 import {useTranslation} from "react-i18next";
@@ -8,15 +8,10 @@ import { success, error } from '../stores/flash_messages.ts';
 export function ActivityTypeList() {
     const {t} = useTranslation();
 
-    const [list, setList] = useState<ActivityType[]>([]);
+    const [activityTypes, setActivityTypes] = useState<ActivityType[]>([]);
 
     function fetchList() {
-        api_call("activity_type_list")
-            .then((activity_types_input: Array<object>) => {
-                const activity_types = activity_types_input.map((object) => ActivityType.from(object));
-                setList(activity_types);
-            })
-            .catch(e => error(t('error_api_generic')+"\n"+e.toString()));
+        getActivityTypesList().then(list => setActivityTypes(list)).catch(e => error(e.toString()));
     }
 
     useEffect(() => {
@@ -30,7 +25,7 @@ export function ActivityTypeList() {
 
         api_call("activity_type_delete", {id: activityType.id})
             .then((res) => {
-                if (res < 1) {
+                if (Number(res) < 1) {
                     error(t('generic_item_not_found'));
                 } else {
                     success(t('activity_type_removed_message', {name: activityType.name ||'no name'}));
@@ -64,11 +59,11 @@ export function ActivityTypeList() {
                 </tr>
                 </thead>
                 <tbody>
-                {!list.length
+                {!activityTypes.length
                     ? (<tr>
-                        <td colSpan="5">{t('activity_type_no_item_message')}</td>
+                        <td colSpan={5}>{t('activity_type_no_item_message')}</td>
                     </tr>)
-                    : list.map((activityType, index) => (
+                    : activityTypes.map((activityType, index) => (
                         <tr key={index}>
                             <td>{activityType.id}</td>
                             <td>{activityType.name}</td>

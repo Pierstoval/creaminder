@@ -6,10 +6,10 @@ import FlashMessages from './lib/components/messages/FlashMessages.tsx';
 export default function Layout() {
     const {t, i18n} = useTranslation();
 
-    function LocaleLink({locale, flag}) {
+    function LocaleLink({locale, flag}: {locale: string; flag: string}) {
         return (
             <li className="right">
-                <button type="button" className="nobg" href="#" onClick={() => i18n.changeLanguage(locale)}>
+                <button type="button" className="nobg" onClick={() => i18n.changeLanguage(locale)}>
                     {flag} {locale.toUpperCase()}
                 </button>
             </li>
