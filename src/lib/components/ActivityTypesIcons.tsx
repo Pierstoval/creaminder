@@ -20,15 +20,13 @@ export default function ActivityTypesIcons({onClick, activeId}: {onClick?: (id: 
     }
 
     return (
-        <div>
+        <>
             <button className="activity-icon" onClick={() => click(0)} title={t('button_reset')}>
                 🚫 {t('button_reset')}
             </button>
             {activityTypes.map((activityType) => (
-                <span key={activityType.id}>
-                    <ActivityTypeIcon isActive={activityType.id == activeId} activityType={activityType} onClick={click}/>
-                </span>
+                <ActivityTypeIcon isActive={activityType.id == activeId} activityType={activityType} onClick={click}/>
             ))}
-        </div>
+        </>
     );
 }

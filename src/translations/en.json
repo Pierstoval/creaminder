@@ -4,6 +4,7 @@
   "activity_delete_confirm": "Delete this activity?",
   "activity_edit": "Edit activity",
   "activity_filter_by_type": "Filter by type:",
+  "activity_form_type_mandatory": "Activity type is mandatory",
   "activity_new": "New activity",
   "activity_removed_message": "Successfully removed activity number \"{{id}}\".",
   "activity_type_created_message": "Activity type created successfully!",

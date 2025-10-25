@@ -32,7 +32,7 @@ export default function FlashMessages() {
             setTimeout(() => close(message), 5000);
             return (<div className={className} key={index}>
                 <div dangerouslySetInnerHTML={{__html: message.text}}></div>
-                <span className="close" onClick={() => close(message, 0)}>&times;</span>
+                <span className="close" onClick={() => close(message)}>&times;</span>
             </div>)
         })}
     </div>);

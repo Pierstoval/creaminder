@@ -10,7 +10,7 @@ export default function api_call<O = DefaultApiCallResult>(
 	params?: InvokeArgs|undefined,
 ): Promise<O> {
 	if (typeof window !== 'undefined') {
-		console.info('Api call', command, params);
+		console.log(`[${(new Date()).toJSON()}] Api call`, command, params);
 		return invoke(command, params);
 	}
 

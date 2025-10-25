@@ -26,6 +26,30 @@ a, a:visited {
 input, textarea {
     padding: 2px 10px;
 }
+input[type="radio"] + label {
+    position: relative;
+    z-index: 0;
+    display: inline-block;
+    padding: 5px 15px 5px 30px;
+    left: -15px;
+    cursor: pointer;
+    vertical-align: middle;
+    border-radius: 15px;
+    background: #eee;
+}
+input[type="radio"] + label:hover {
+    background: #ddd;
+}
+input[type="radio"]:has(+ label) {
+    position: relative;
+    z-index: 1;
+    left: 10px;
+    display: inline-block;
+    cursor: pointer;
+    width: 15px;
+    height: 15px;
+    vertical-align: middle;
+}
 
 table {
     width: 100%;
@@ -37,8 +61,8 @@ table td {
 
 nav {
     margin-bottom: 10px;
-    border-radius: 5px;
-    padding: 5px;
+    border-radius: 30px;
+    padding: 5px 6px;
 }
 nav a {
     padding: 6px 12px;
@@ -47,7 +71,7 @@ nav li {
     display: inline-block;
 }
 nav li + li {
-    border-left: 1px solid gray;
+    border-left: 1px solid #d4d4d4;
     margin-left: 10px;
     padding-left: 10px;
 }
@@ -66,23 +90,21 @@ button + .btn,
 button,
 .btn
 {
-    border: solid 1px #ccc;
+    border: none 0 transparent;
     background: #ddd;
     color: black;
-    border-radius: 3px;
-    padding: 6px 8px;
+    border-radius: 30px;
+    padding: 10px 15px;
 }
 button:hover,
 .btn:hover
 {
-    border: solid 1px #ddd;
     background: #eee;
     cursor: pointer;
 }
 button:active,
 .btn:active
 {
-    border: solid 1px #bbb;
     background: #ccc;
 }
 a.btn {
@@ -92,6 +114,23 @@ a.btn {
 /*
  Custom classed styles
  */
+
+input.btn-submit,
+button.btn-submit
+{
+    background-color: #6371c8;
+    color: #f6f7ff;
+}
+input.btn-submit:hover,
+button.btn-submit:hover
+{
+    background-color: #9ca7e6;
+}
+input.btn-submit:active,
+button.btn-submit:active
+{
+    background-color: #6371c8;
+}
 
 form label.required::after {
     content: " *";
@@ -116,7 +155,6 @@ nav.main {
     background: #f8f8f8;
 }
 nav.main a:hover {
-    border-radius: 5px;
     background: #eee;
 }
 nav.main a:active {
@@ -124,13 +162,35 @@ nav.main a:active {
 }
 
 table.bordered {
-    border-collapse: collapse;
     border-spacing: 0;
 }
-table.bordered,
 table.bordered th,
 table.bordered td {
-    border: solid 1px gray;
+    border: solid 2px white; /* Table margin size */
+}
+table.bordered th:first-of-type,
+table.bordered td:first-of-type {
+    border-left: none;
+}
+table.bordered tr:first-of-type th {
+    border-top: none;
+}
+table.bordered th:last-of-type,
+table.bordered td:last-of-type {
+    border-right: none;
+}
+table.bordered tr:last-of-type td {
+    border-bottom: none;
+}
+table.bordered tr:nth-child(odd) td {
+    background: #e6e6e6;
+}
+table.bordered tr th,
+table.bordered tr:nth-child(even) td {
+    background: #d9d9d9;
+}
+table.bordered tr:hover td {
+    background: #bfbfbf;
 }
 
 ul.nostyle {
@@ -184,7 +244,6 @@ ul.nostyle {
 
 .alert.error {
     color: #b52d2d;
-    border-color: #b52d2d;
     background-color: #fdbdbd;
 }
 .alert.error::before {
@@ -193,7 +252,6 @@ ul.nostyle {
 
 .alert.success {
     color: #1b753f;
-    border-color: #1b753f;
     background-color: #caffd8;
 }
 .alert.success::before {
@@ -205,27 +263,30 @@ ul.nostyle {
     flex-direction: row-reverse;
 }
 
+.types_icons label {
+    display: block;
+}
 button.activity-icon {
     color: #25324d;
-    border: solid 2px transparent;
     background-color: #b7ccff;
-    margin: 5px
+    border: solid 2px transparent;
+    padding: 8px;
+    margin-top: 5px;
+    margin-bottom: 5px;
+    transition: padding ease-out 200ms;
 }
 button.activity-icon:hover {
     color: #384767;
-    border-color: #5f83d3;
     background-color: #d6e3ff;
 }
 button.activity-icon:active {
-    color: #566687;
-    border-color: #566687;
-    background-color: #c3cfea;
+    color: #4765c6;
+    background-color: #b9ceff;
 }
 button.activity-icon.active {
-    border-color: #25324d;
-}
-button.activity-icon.active:hover {
-    border-color: #6079ac;
+    border-color: #384767;
+    padding-left: 16px;
+    padding-right: 16px;
 }
 button.activity-icon + button.activity-icon {
     margin-left: 5px;

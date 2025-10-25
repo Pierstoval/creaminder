@@ -1,4 +1,5 @@
 use chrono::DateTime;
+use chrono::FixedOffset;
 use chrono::Local;
 use rusqlite::named_params;
 use rusqlite::Connection;
@@ -6,11 +7,13 @@ use serde::Deserialize;
 use serde::Serialize;
 use serde_rusqlite::error::Result as SerdeResult;
 
+const DATE_FORMAT: &str = "%Y-%m-%dT%H:%M:%S%z";
+
 #[derive(Debug, Serialize, Deserialize)]
 pub(crate) struct Activity {
     pub(crate) id: u32,
     pub(crate) description: String,
-    pub(crate) date: DateTime<Local>,
+    pub(crate) date: String,
     pub(crate) activity_type_id: Option<u32>,
 }
 
@@ -103,9 +106,9 @@ pub(crate) fn find_by_activity_type(conn: &Connection, activity_type_id: Option<
 pub(crate) fn create(conn: &Connection, description: Option<String>, date: Option<String>, activity_type_id: Option<u32>) -> Result<Activity, String> {
     let description = description.unwrap_or(String::from(""));
 
-    let date_rfc: DateTime<Local>;
+    let date_rfc: DateTime<FixedOffset>;
     if date.is_some() {
-        let checked_date = DateTime::parse_from_str(&date.clone().unwrap(), "%Y-%m-%dT%H:%M:%S%z");
+        let checked_date = DateTime::parse_from_str(&date.clone().unwrap(), DATE_FORMAT);
 
         if checked_date.is_err() {
             return Err(checked_date.unwrap_err().to_string());
@@ -113,14 +116,14 @@ pub(crate) fn create(conn: &Connection, description: Option<String>, date: Optio
 
         date_rfc = checked_date.unwrap().into();
     } else {
-        date_rfc = Local::now();
+        date_rfc = Local::now().into();
     }
 
     let mut stmt = conn.prepare("INSERT INTO activities ( description, date, activity_type_id ) VALUES ( :description, :date, :activity_type_id )").unwrap();
 
     stmt.execute(named_params! {
         ":description": &description.clone(),
-        ":date": format!("{}", &date_rfc.format("%Y-%m-%dT%H:%M:%S%z")),
+        ":date": format!("{}", &date_rfc.format(DATE_FORMAT)),
         ":activity_type_id": &activity_type_id,
     }).unwrap();
 
@@ -157,9 +160,9 @@ pub(crate) fn update(
 ) -> Result<Activity, String> {
     let description = description.unwrap_or(String::from(""));
 
-    let date_rfc: DateTime<Local>;
+    let date_rfc: DateTime<FixedOffset>;
     if let Some(date_str) = date {
-        let checked_date = DateTime::parse_from_str(&date_str, "%Y-%m-%dT%H:%M:%S%z");
+        let checked_date = DateTime::parse_from_str(&date_str, DATE_FORMAT);
 
         if checked_date.is_err() {
             return Err(checked_date.unwrap_err().to_string());
@@ -167,7 +170,7 @@ pub(crate) fn update(
 
         date_rfc = checked_date.unwrap().into();
     } else {
-        date_rfc = Local::now();
+        date_rfc = Local::now().into();
     }
 
     let mut stmt = conn.prepare("UPDATE activities SET description = :description, date = :date, activity_type_id = :activity_type_id WHERE id = :id").unwrap();
@@ -175,7 +178,7 @@ pub(crate) fn update(
     let result = stmt.execute(named_params! {
         ":id": &id,
         ":description": &description,
-        ":date": format!("{}", &date_rfc.format("%Y-%m-%dT%H:%M:%S%z")),
+        ":date": format!("{}", &date_rfc.format(DATE_FORMAT)),
         ":activity_type_id": &activity_type_id,
     });
 

@@ -3,7 +3,7 @@ import {useParams, useNavigate} from "react-router";
 import {useTranslation} from "react-i18next";
 import api_call from "../lib/api_call.ts";
 import { success, error } from '../stores/flash_messages.ts';
-import Activity from "../lib/entities/Activity.ts";
+import {Activity, PartialActivity} from "../lib/entities/Activity.ts";
 import ActivityForm from "../lib/components/ActivityForm.tsx";
 import Loader from "../lib/components/Loader.tsx";
 
@@ -33,7 +33,7 @@ export default function ActivityEdit() {
         return;
     }
 
-    async function onSubmit(data: Activity): Promise<void> {
+    async function onSubmit(data: PartialActivity): Promise<void> {
         try {
             const newActivity: Activity = await api_call<Activity>('activity_update', {...data});
             await navigate(`/activity/list`);
