@@ -11,7 +11,7 @@ export default function Layout() {
         return (
             <li className="right">
                 <button type="button" className="nobg" onClick={() => i18n.changeLanguage(locale)}>
-                    {flag} {locale.toUpperCase()}
+                    {flag}
                 </button>
             </li>
         );
