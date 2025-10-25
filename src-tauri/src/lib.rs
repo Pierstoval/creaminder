@@ -11,20 +11,10 @@ mod domain {
     pub(crate) mod activity;
     pub(crate) mod activity_type;
 }
-mod migrations;
-
-// // Learn more about Tauri commands at https://tauri.app/develop/calling-rust/
-// #[tauri::command]
-// fn greet(name: &str) -> String {
-//     format!("Hello, {}! You've been greeted from Rust!", name)
-// }
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     let mut conn = get_database_connection();
-
-    let migrations = rusqlite_migration::Migrations::new(migrations::migrations());
-    migrations.to_latest(&mut conn).unwrap();
 
     tauri::Builder::default()
         .manage(Mutex::new(conn))

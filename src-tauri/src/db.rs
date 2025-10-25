@@ -10,7 +10,7 @@ pub(crate) fn get_database_connection() -> Connection {
     let database_path = get_database_path();
     let database_flags = get_database_flags();
 
-    let conn = Connection::open_with_flags(database_path, database_flags)
+    let mut conn = Connection::open_with_flags(database_path, database_flags)
         .expect("Could not open database.");
 
     conn.create_scalar_function(
@@ -20,6 +20,9 @@ pub(crate) fn get_database_connection() -> Connection {
         regexp_with_auxilliary,
     )
     .expect("Could not add regexp function to database");
+
+    let migrations = rusqlite_migration::Migrations::new(migrations());
+    migrations.to_latest(&mut conn).unwrap();
 
     conn
 }
@@ -62,4 +65,10 @@ fn regexp_with_auxilliary(ctx: &Context<'_>) -> rusqlite::Result<bool> {
     };
 
     Ok(is_match)
+}
+
+fn migrations() -> Vec<rusqlite_migration::M<'static>> {
+    vec![
+        rusqlite_migration::M::up(include_str!("./migrations/0-init.sql")),
+    ]
 }
