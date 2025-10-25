@@ -1,13 +1,12 @@
 import api_call from "../lib/api_call.ts";
 import {useState} from "react";
-import Errors from '../components/messages/Errors.tsx';
-import Success from '../components/messages/Success.tsx';
 import {useTranslation} from "react-i18next";
+import {useNavigate} from "react-router";
+import { success, error } from '../stores/flash_messages.ts';
 
 export default function ActivityTypeCreate() {
     const {t} = useTranslation();
-    let [errors, setErrors] = useState('');
-    let [success, setSuccess] = useState('');
+    const navigate = useNavigate();
 
     let [name, setName] = useState('');
     let [description, setDescription] = useState('');
@@ -18,14 +17,11 @@ export default function ActivityTypeCreate() {
             description: formData.get('description')?.toString() || null,
         };
         try {
-            setErrors('');
-            setSuccess('');
             await api_call('activity_type_create', data);
-            setSuccess(t('activity_type_created_message'));
-            setName('');
-            setDescription('');
+            await navigate(`/activity-type/list`);
+            success(t('activity_type_created_message'));
         } catch (e) {
-            setErrors(t('error_api_generic')+"\n"+e.toString());
+            error(t('error_api_generic')+"\n"+e.toString());
         }
     }
 
@@ -52,8 +48,6 @@ export default function ActivityTypeCreate() {
                         </tr>
                     </tbody>
                 </table>
-                <Errors messages={errors} />
-                <Success messages={success} />
             </form>
         </>
     );

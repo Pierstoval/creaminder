@@ -1,18 +1,16 @@
 import {useEffect, useState} from "react";
 import {Link} from "react-router";
+import {useTranslation} from "react-i18next";
+
 import Activity from "../lib/entities/Activity.ts";
 import ActivityType from "../lib/entities/ActivityType.ts";
 import api_call from "../lib/api_call.ts";
-import Success from "../components/messages/Success.tsx";
-import Errors from "../components/messages/Errors.tsx";
-import ActivityTypesIcons from "../components/ActivityTypesIcons.tsx";
-import {useTranslation} from "react-i18next";
+import ActivityTypesIcons from "../lib/components/ActivityTypesIcons.tsx";
+import {success, error} from '../stores/flash_messages.ts';
 
 export default function ActivityList() {
     const {t} = useTranslation();
 
-    const [messages, setMessages] = useState("");
-    const [errors, setErrors] = useState("");
     const [list, setList] = useState([]);
     const [activityTypes, setActivityTypes] = useState([]);
     const [selectedActivityType, setSelectedActivityType] = useState("");
@@ -24,7 +22,7 @@ export default function ActivityList() {
                 const activities = activities_input.map((object) => Activity.from(object));
                 setList(activities);
             })
-            .catch(e => setErrors(t('error_api_generic')+"\n"+e.toString()));
+            .catch(e => error(t('error_api_generic')+"\n"+e.toString()));
     }
 
     function fetchActivityTypes() {
@@ -33,7 +31,7 @@ export default function ActivityList() {
                 const activity_types = activity_types_input.map((object) => ActivityType.from(object));
                 setActivityTypes(activity_types);
             })
-            .catch(e => setErrors(t('error_api_generic')+"\n"+e.toString()));
+            .catch(e => error(t('error_api_generic')+"\n"+e.toString()));
     }
 
     useEffect(() => {
@@ -53,13 +51,13 @@ export default function ActivityList() {
         api_call("activity_delete", {id: activity.id})
             .then((res) => {
                 if (res < 1) {
-                    setErrors(t('generic_item_not_found'));
+                    error(t('generic_item_not_found'));
                 } else {
-                    setMessages(t('activity_removed_message', {id: activity.id}));
+                    success(t('activity_removed_message', {id: activity.id}));
                 }
                 fetchList();
             })
-            .catch(e => setErrors(t('error_api_generic')+"\n"+e.toString()));
+            .catch(e => error(t('error_api_generic')+"\n"+e.toString()));
     }
 
     return (
@@ -75,8 +73,6 @@ export default function ActivityList() {
                 <ActivityTypesIcons activeId={selectedActivityType} onClick={(activityTypeId) => setSelectedActivityType(activityTypeId)} />
             </div>
 
-            <Errors messages={errors} />
-            <Success messages={messages} />
             <table className="bordered">
                 <thead>
                 <tr>

@@ -1,8 +1,9 @@
-import api_call from "../lib/api_call.ts";
-import ActivityType from "../lib/entities/ActivityType.ts";
 import {useEffect, useState} from "react";
-import ActivityTypeIcon from "./ActivityTypeIcon.tsx";
 import {useTranslation} from "react-i18next";
+import api_call from "../api_call.ts";
+import ActivityType from "../entities/ActivityType.ts";
+import ActivityTypeIcon from "./ActivityTypeIcon.tsx";
+import { error } from '../../stores/flash_messages.ts';
 
 export default function ActivityTypesIcons({onClick, activeId}) {
     const [activityTypes, setActivityTypes] = useState([]);
@@ -14,7 +15,7 @@ export default function ActivityTypesIcons({onClick, activeId}) {
                 const activity_types = activity_types_input.map((object) => ActivityType.from(object));
                 setActivityTypes(activity_types);
             })
-            .catch(e => console.error('Could not fetch activity types!', e));
+            .catch(e => error(t('api_generic_error')+' ActivityType Not Found'));
     }, [onClick]);
 
     return (
@@ -23,7 +24,9 @@ export default function ActivityTypesIcons({onClick, activeId}) {
                 🚫 {t('button_reset')}
             </button>
             {activityTypes.map((activityType) => (
-                <ActivityTypeIcon key={activityType.id} isActive={activityType.id == activeId} activityType={activityType} onClick={onClick}/>
+                <span key={activityType.id}>
+                    <ActivityTypeIcon isActive={activityType.id == activeId} activityType={activityType} onClick={onClick}/>
+                </span>
             ))}
         </div>
     );

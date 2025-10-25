@@ -1,94 +1,33 @@
 import api_call from "../lib/api_call.ts";
-import {useEffect, useState} from "react";
 import {useTranslation} from "react-i18next";
-import ActivityType from "../lib/entities/ActivityType.ts";
-import Errors from '../components/messages/Errors.tsx';
-import Success from '../components/messages/Success.tsx';
+import { error, success } from '../stores/flash_messages.ts';
+import {useNavigate} from "react-router";
+import Activity from "../lib/entities/Activity.ts";
+import ActivityForm from "../lib/components/ActivityForm.tsx";
 
 export default function ActivityCreate() {
-    const baseDate = (new Date()).toJSON().replace(/(:\d{2})?(\.\d+)?z$/i, '');
-
     const { t } = useTranslation();
+    const navigate = useNavigate();
 
-    let [errors, setErrors] = useState('');
-    let [success, setSuccess] = useState('');
-
-    let [description, setDescription] = useState('');
-    let [date, setDate] = useState(baseDate);
-    let [activityTypeId, setActivityTypeId] = useState('');
-    let [activityTypes, setActivityTypes] = useState([]);
-
-    async function create(formData: FormData): Promise<unknown> {
-        const data = {
-            description: formData.get('description')?.toString(),
-            date: formData.get('date') ? (formData.get('date') + ":00+0000") : null,
-            activity_type_id: formData.get('activity_type_id') ? parseInt(formData.get('activity_type_id')?.toString()) : null,
-        };
+    async function onSubmit(activity: Activity): Promise<unknown> {
         try {
-            setErrors('');
-            setSuccess('');
-            await api_call('activity_create', data);
-            setSuccess(t('activity_created_message'));
-            setDate(baseDate);
-            setDescription('');
-            setActivityTypeId('');
+            await api_call('activity_create', activity);
+            await navigate(`/activity/list`);
+            let identifier = (activity.description||activity.id||'').toString();
+            if (identifier.length > 0) {
+                identifier = `"${identifier}"`;
+            }
+            success(t('activity_created_message', {name: identifier}));
         } catch (e) {
-            setErrors(t('error_api_generic')+"\n"+e.toString());
+            error(t('error_api_generic')+"\n"+e.toString());
         }
     }
-
-    function fetchActivityTypes() {
-        api_call("activity_type_list")
-            .then((activity_types_input: Array<object>) => {
-                const activity_types = activity_types_input.map((object) => ActivityType.from(object));
-                setActivityTypes(activity_types);
-            })
-            .catch(e => setErrors(t('error_api_generic')+"\n"+e.toString()));
-    }
-
-    useEffect(() => {
-        fetchActivityTypes();
-    }, []);
 
     return (
         <>
             <h2>{t('activity_new')}</h2>
 
-            <form action={create}>
-                <table>
-                    <tbody>
-                        <tr>
-                            <td><label htmlFor="description" required>{t('field_description')}</label></td>
-                            <td><input type="text" name="description" placeholder={t('field_description')} required value={description} onChange={(e) => setDescription(e.target.value)} /></td>
-                        </tr>
-                        <tr>
-                            <td><label htmlFor="date">{t('field_date')}</label></td>
-                            <td>
-                                <input type="datetime-local" name="date" placeholder={t('field_date')} value={date} onChange={(e) => setDate(e.target.value)} />
-                            </td>
-                        </tr>
-                        <tr>
-                            <td><label htmlFor="activity_type_id">{t('activity_type_title')}</label></td>
-                            <td>
-                                <select name="activity_type_id" value={activityTypeId} onChange={(e) => setActivityTypeId(e.target.value)}>
-                                    <option value="">- {t('activity_type_select')} -</option>
-                                    {activityTypes.map((activityType) => (
-                                        <option key={activityType.id} value={activityType.id}>
-                                            {activityType.name}
-                                        </option>
-                                    ))}
-                                </select>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td></td>
-                            <td><button type="submit">{t('button_create')}</button></td>
-                        </tr>
-                    </tbody>
-                </table>
-                <Errors messages={errors} />
-                <Success messages={success} />
-            </form>
+            <ActivityForm onSubmit={onSubmit} type="create" />
         </>
     );
 }

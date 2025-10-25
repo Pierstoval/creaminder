@@ -1,17 +1,14 @@
 import {useEffect, useState} from "react";
 import ActivityType from "../lib/entities/ActivityType.ts";
 import api_call from "../lib/api_call.ts";
-import Success from "../components/messages/Success.tsx";
-import Errors from "../components/messages/Errors.tsx";
 import {Link} from "react-router";
 import {useTranslation} from "react-i18next";
+import { success, error } from '../stores/flash_messages.ts';
 
 export function ActivityTypeList() {
     const {t} = useTranslation();
 
-    const [messages, setMessages] = useState("");
-    const [errors, setErrors] = useState("");
-    const [list, setList] = useState([]);
+    const [list, setList] = useState<ActivityType[]>([]);
 
     function fetchList() {
         api_call("activity_type_list")
@@ -19,7 +16,7 @@ export function ActivityTypeList() {
                 const activity_types = activity_types_input.map((object) => ActivityType.from(object));
                 setList(activity_types);
             })
-            .catch(e => setErrors(t('error_api_generic')+"\n"+e.toString()));
+            .catch(e => error(t('error_api_generic')+"\n"+e.toString()));
     }
 
     useEffect(() => {
@@ -34,13 +31,19 @@ export function ActivityTypeList() {
         api_call("activity_type_delete", {id: activityType.id})
             .then((res) => {
                 if (res < 1) {
-                    setErrors(t('generic_item_not_found'));
+                    error(t('generic_item_not_found'));
                 } else {
-                    setMessages(t('activity_type_removed_message', {name: activityType.name ||'no name'}));
+                    success(t('activity_type_removed_message', {name: activityType.name ||'no name'}));
                 }
                 fetchList();
             })
-            .catch(e => setErrors(t('error_api_generic')+"\n"+e.toString()));
+            .catch(e => {
+                if (e.toString().trim() === 'FOREIGN KEY constraint failed') {
+                    error(t('activity_type_error_delete_affects_activities'))
+                } else {
+                    error(t('error_api_generic') + "\n" + e.toString());
+                }
+            });
     }
 
     return (
@@ -51,8 +54,6 @@ export function ActivityTypeList() {
                 <Link to="/activity-type/create" className="btn">➕ {t('activity_type_new')}</Link>
             </nav>
 
-            <Errors messages={errors}/>
-            <Success messages={messages}/>
             <table className="bordered">
                 <thead>
                 <tr>

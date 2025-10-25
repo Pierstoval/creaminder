@@ -1,6 +1,7 @@
 import "./App.css";
 import {Link, Outlet} from "react-router";
 import {useTranslation} from "react-i18next";
+import FlashMessages from './lib/components/messages/FlashMessages.tsx';
 
 export default function Layout() {
     const {t, i18n} = useTranslation();
@@ -25,6 +26,8 @@ export default function Layout() {
                     {i18n.language == 'en' || (<LocaleLink locale="en" flag="🇬🇧" />)}
                 </ul>
             </nav>
+
+            <FlashMessages />
 
             <Outlet/>
         </main>

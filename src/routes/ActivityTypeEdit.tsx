@@ -2,16 +2,12 @@ import api_call from "../lib/api_call.ts";
 import {useEffect, useState} from "react";
 import {useParams, useNavigate} from "react-router";
 import {useTranslation} from "react-i18next";
-import Errors from '../components/messages/Errors.tsx';
-import Success from '../components/messages/Success.tsx';
+import { success, error } from '../stores/flash_messages.ts';
 
 export default function ActivityTypeEdit() {
     const { t } = useTranslation();
     const { id } = useParams();
     const navigate = useNavigate();
-
-    let [errors, setErrors] = useState('');
-    let [success, setSuccess] = useState('');
 
     let [name, setName] = useState('');
     let [description, setDescription] = useState('');
@@ -24,7 +20,7 @@ export default function ActivityTypeEdit() {
                     setDescription(activityType.description || '');
                 })
                 .catch((e) => {
-                    setErrors(t('error_api_generic')+"\n"+e.toString());
+                    error(t('error_api_generic')+"\n"+e.toString());
                 });
         }
     }, [id]);
@@ -36,12 +32,11 @@ export default function ActivityTypeEdit() {
             description: formData.get('description')?.toString() || null,
         };
         try {
-            setErrors('');
-            setSuccess('');
             await api_call('activity_type_update', data);
-            setSuccess(t('activity_type_updated_message'));
+            success(t('activity_type_updated_message'));
+            await navigate(`/activity-type/list`);
         } catch (e) {
-            setErrors(t('error_api_generic')+"\n"+e.toString());
+            error(t('error_api_generic')+"\n"+e.toString());
         }
     }
 
@@ -71,8 +66,6 @@ export default function ActivityTypeEdit() {
                         </tr>
                     </tbody>
                 </table>
-                <Errors messages={errors} />
-                <Success messages={success} />
             </form>
         </>
     );
