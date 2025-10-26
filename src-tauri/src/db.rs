@@ -1,44 +1,18 @@
-use std::{env, fs};
 use regex::Regex;
 use rusqlite::functions::Context;
 use rusqlite::functions::FunctionFlags;
 use rusqlite::Connection;
 use rusqlite::OpenFlags;
-use std::path::PathBuf;
-use std::fs::File;
+use tauri::AppHandle;
+use tauri::Manager;
 
-pub(crate) fn get_database_connection(data_dir: Result<PathBuf, tauri::Error>) -> Connection {
-    dbg!(&data_dir);
+pub(crate) fn get_database_connection(app: &AppHandle) -> Connection {
 
-    let database_path = if data_dir.is_ok() {
-        data_dir.unwrap()
-    } else {
-        fallback_database_dir()
-    };
-
-    if !database_path.exists() {
-        fs::create_dir_all(&database_path).expect(format!("Could not create database directory in {}", &database_path.display()).as_ref());
-    }
-
-    let res = File::options()
-        .read(false)
-        .write(true)
-        .open(database_path.clone());
-
-    dbg!(&res);
-
-    let database_file = database_path.join("creaminder.db3");
-
-    let res = File::options()
-        .read(false)
-        .write(true)
-        .open(database_file.clone());
-
-    dbg!(&res);
+    let empty_db_path = app.path().resolve("data/data.db", tauri::path::BaseDirectory::Resource).unwrap();
 
     let database_flags = get_database_flags();
 
-    let mut conn = Connection::open_with_flags(database_file, database_flags)
+    let mut conn = Connection::open_with_flags(empty_db_path, database_flags)
         .expect("Could not open database.");
 
     conn.create_scalar_function(
@@ -91,17 +65,17 @@ fn regexp_with_auxilliary(ctx: &Context<'_>) -> rusqlite::Result<bool> {
     Ok(is_match)
 }
 
-fn fallback_database_dir() -> PathBuf {
-    let project_dir = env::current_exe().expect("Could not determine current executable directory")
-        .parent().expect("Could not determine parent directory to current executable")
-        .join(".creaminder_dev");
-
-    if !project_dir.exists() {
-        fs::create_dir_all(&project_dir).expect(format!("Could not create fallback database directory in {}", &project_dir.display()).as_ref());
-    }
-
-    project_dir
-}
+// fn fallback_database_dir() -> PathBuf {
+//     let project_dir = env::current_exe().expect("Could not determine current executable directory")
+//         .parent().expect("Could not determine parent directory to current executable")
+//         .join(".creaminder_dev");
+//
+//     if !project_dir.exists() {
+//         fs::create_dir_all(&project_dir).expect(format!("Could not create fallback database directory in {}", &project_dir.display()).as_ref());
+//     }
+//
+//     project_dir
+// }
 
 fn migrations() -> Vec<rusqlite_migration::M<'static>> {
     vec![

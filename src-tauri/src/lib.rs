@@ -18,11 +18,10 @@ pub fn run() {
     tauri::Builder::default()
         .plugin(tauri_plugin_opener::init())
         .setup(|app| {
-            let data_dir = app.path().app_cache_dir();
-
-            let conn = get_database_connection(data_dir);
-
             let app_handle = app.handle();
+
+            let conn = get_database_connection(&app_handle);
+
             app_handle.manage(Mutex::new(conn));
 
             Ok(())
