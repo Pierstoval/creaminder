@@ -1,7 +1,7 @@
 use std::sync::Mutex;
 use crate::db::get_database_connection;
+use tauri::Manager;
 
-mod config;
 mod db;
 mod command {
     pub(crate) mod activities;
@@ -14,11 +14,20 @@ mod domain {
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
-    let mut conn = get_database_connection();
 
     tauri::Builder::default()
-        .manage(Mutex::new(conn))
         .plugin(tauri_plugin_opener::init())
+        .setup(|app| {
+            let path = app.path();
+            let data_dir = path.app_data_dir();
+
+            let conn = get_database_connection(data_dir);
+
+            let app_handle = app.handle();
+            app_handle.manage(Mutex::new(conn));
+
+            Ok(())
+        })
         .invoke_handler(tauri::generate_handler![
             crate::command::activities::activity_list,
             crate::command::activities::activity_create,

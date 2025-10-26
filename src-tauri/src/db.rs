@@ -1,4 +1,4 @@
-use crate::config::creaminder_dir;
+use std::{env, fs};
 use regex::Regex;
 use rusqlite::functions::Context;
 use rusqlite::functions::FunctionFlags;
@@ -6,11 +6,22 @@ use rusqlite::Connection;
 use rusqlite::OpenFlags;
 use std::path::PathBuf;
 
-pub(crate) fn get_database_connection() -> Connection {
-    let database_path = get_database_path();
+pub(crate) fn get_database_connection(data_dir: Result<PathBuf, tauri::Error>) -> Connection {
+    let database_path = if data_dir.is_ok() {
+        data_dir.unwrap()
+    } else {
+        fallback_database_dir()
+    };
+
+    if !database_path.exists() {
+        fs::create_dir_all(&database_path).expect(format!("Could not create database directory in {}", &database_path.display()).as_ref());
+    }
+
+    let database_file = database_path.join("creaminder.db3");
+
     let database_flags = get_database_flags();
 
-    let mut conn = Connection::open_with_flags(database_path, database_flags)
+    let mut conn = Connection::open_with_flags(database_file, database_flags)
         .expect("Could not open database.");
 
     conn.create_scalar_function(
@@ -25,10 +36,6 @@ pub(crate) fn get_database_connection() -> Connection {
     migrations.to_latest(&mut conn).unwrap();
 
     conn
-}
-
-fn get_database_path() -> PathBuf {
-    creaminder_dir().join("creaminder.db3")
 }
 
 fn get_database_flags() -> OpenFlags {
@@ -65,6 +72,18 @@ fn regexp_with_auxilliary(ctx: &Context<'_>) -> rusqlite::Result<bool> {
     };
 
     Ok(is_match)
+}
+
+fn fallback_database_dir() -> PathBuf {
+    let project_dir = env::current_exe().expect("Could not determine current executable directory")
+        .parent().expect("Could not determine parent directory to current executable")
+        .join(".creaminder_dev");
+
+    if !project_dir.exists() {
+        fs::create_dir_all(&project_dir).expect(format!("Could not create fallback database directory in {}", &project_dir.display()).as_ref());
+    }
+
+    project_dir
 }
 
 fn migrations() -> Vec<rusqlite_migration::M<'static>> {

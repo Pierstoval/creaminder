@@ -27,7 +27,6 @@ serde_json = "1"
 # Project deps:
 anyhow = "1.0"
 chrono = { version = "0.4", features = [ "serde" ] }
-dirs = "6.0.0"
 regex = "1.12"
 rusqlite = { version = "0.37", features = [ "bundled-full", "functions", "serde_json" ] }
 rusqlite_migration = { version = "2.3", features = [ ] }

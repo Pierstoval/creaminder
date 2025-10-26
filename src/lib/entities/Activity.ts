@@ -6,16 +6,27 @@ export type PartialActivity = {
 };
 
 export class Activity {
-    public readonly id!: number;
+    public _id!: number;
     public readonly description!: string;
-    public readonly date!: string;
+    public date!: string;
     public readonly activity_type_id!: number | null;
 
     constructor(id: number, description: string, date: string, activity_type_id: number | null = null) {
-        this.id = id;
+        this._id = id;
         this.description = description;
         this.date = date;
         this.activity_type_id = activity_type_id;
+    }
+
+    get id(): number {
+        return this._id;
+    }
+
+    set id(id: number) {
+        if (this._id) {
+            throw new Error('Cannot set an ID to an activity that already has one.');
+        }
+        this._id = id;
     }
 
     static from(object: unknown) {
@@ -28,5 +39,14 @@ export class Activity {
         }
 
         return new Activity(Number(input?.id), input?.description || '', input.date, Number(input.activity_type_id));
+    }
+
+    asObject() {
+        return {
+            id: this.id,
+            description: this.description || '',
+            date: this.date || '',
+            activity_type_id: this.activity_type_id,
+        };
     }
 }
