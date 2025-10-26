@@ -21,14 +21,6 @@ export default class ActivityType {
 
         return new ActivityType(object.id, object.name, object.description || null);
     }
-
-    asObject() {
-        return {
-            id: this.id,
-            name: this.name,
-            description: this.description || '',
-        };
-    }
 }
 
 export async function getActivityTypesList(): Promise<ActivityType[]> {

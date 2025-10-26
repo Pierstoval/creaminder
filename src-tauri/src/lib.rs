@@ -18,8 +18,7 @@ pub fn run() {
     tauri::Builder::default()
         .plugin(tauri_plugin_opener::init())
         .setup(|app| {
-            let path = app.path();
-            let data_dir = path.app_data_dir();
+            let data_dir = app.path().app_cache_dir();
 
             let conn = get_database_connection(data_dir);
 

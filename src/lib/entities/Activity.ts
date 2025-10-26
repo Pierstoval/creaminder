@@ -40,13 +40,4 @@ export class Activity {
 
         return new Activity(Number(input?.id), input?.description || '', input.date, Number(input.activity_type_id));
     }
-
-    asObject() {
-        return {
-            id: this.id,
-            description: this.description || '',
-            date: this.date || '',
-            activity_type_id: this.activity_type_id,
-        };
-    }
 }

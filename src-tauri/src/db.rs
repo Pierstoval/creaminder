@@ -5,8 +5,11 @@ use rusqlite::functions::FunctionFlags;
 use rusqlite::Connection;
 use rusqlite::OpenFlags;
 use std::path::PathBuf;
+use std::fs::File;
 
 pub(crate) fn get_database_connection(data_dir: Result<PathBuf, tauri::Error>) -> Connection {
+    dbg!(&data_dir);
+
     let database_path = if data_dir.is_ok() {
         data_dir.unwrap()
     } else {
@@ -17,7 +20,21 @@ pub(crate) fn get_database_connection(data_dir: Result<PathBuf, tauri::Error>) -
         fs::create_dir_all(&database_path).expect(format!("Could not create database directory in {}", &database_path.display()).as_ref());
     }
 
+    let res = File::options()
+        .read(false)
+        .write(true)
+        .open(database_path.clone());
+
+    dbg!(&res);
+
     let database_file = database_path.join("creaminder.db3");
+
+    let res = File::options()
+        .read(false)
+        .write(true)
+        .open(database_file.clone());
+
+    dbg!(&res);
 
     let database_flags = get_database_flags();
 
