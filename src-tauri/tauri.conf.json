@@ -18,7 +18,11 @@
       }
     ],
     "security": {
-      "csp": null
+      "csp": null,
+      "assetProtocol": {
+        "enable": true,
+        "scope": ["*/**", "**", "*", "**/*"]
+      }
     }
   },
   "bundle": {
@@ -32,7 +36,8 @@
       "icons/icon.ico"
     ],
     "resources": {
-      "./assets/empty.db": "data/data.db"
+      "assets/test.txt": "assets/test.txt",
+      "assets/empty.db": "assets/empty.db"
     }
   }
 }

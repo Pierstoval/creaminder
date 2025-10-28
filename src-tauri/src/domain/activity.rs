@@ -51,9 +51,13 @@ pub(crate) fn find_all(conn: &Connection) -> Vec<Activity> {
     activities
 }
 
-pub(crate) fn find_by_activity_type(conn: &Connection, activity_type_id: Option<u32>) -> Vec<Activity> {
+pub(crate) fn find_by_activity_type(
+    conn: &Connection,
+    activity_type_id: Option<u32>,
+) -> Vec<Activity> {
     let sql = match activity_type_id {
-        Some(_) => "
+        Some(_) => {
+            "
         SELECT
             id,
             description,
@@ -62,8 +66,10 @@ pub(crate) fn find_by_activity_type(conn: &Connection, activity_type_id: Option<
         FROM activities
         WHERE activity_type_id = :activity_type_id
         ORDER BY id DESC
-        ",
-        None => "
+        "
+        }
+        None => {
+            "
         SELECT
             id,
             description,
@@ -71,12 +77,11 @@ pub(crate) fn find_by_activity_type(conn: &Connection, activity_type_id: Option<
             activity_type_id
         FROM activities
         ORDER BY id DESC
-        ",
+        "
+        }
     };
 
-    let mut stmt = conn
-        .prepare(sql)
-        .expect("Could not fetch activities");
+    let mut stmt = conn.prepare(sql).expect("Could not fetch activities");
 
     let mut activities: Vec<Activity> = Vec::new();
 
@@ -103,7 +108,12 @@ pub(crate) fn find_by_activity_type(conn: &Connection, activity_type_id: Option<
     activities
 }
 
-pub(crate) fn create(conn: &Connection, description: Option<String>, date: Option<String>, activity_type_id: Option<u32>) -> Result<Activity, String> {
+pub(crate) fn create(
+    conn: &Connection,
+    description: Option<String>,
+    date: Option<String>,
+    activity_type_id: Option<u32>,
+) -> Result<Activity, String> {
     let description = description.unwrap_or(String::from(""));
 
     let date_rfc: DateTime<FixedOffset>;
@@ -125,11 +135,14 @@ pub(crate) fn create(conn: &Connection, description: Option<String>, date: Optio
         ":description": &description.clone(),
         ":date": format!("{}", &date_rfc.format(DATE_FORMAT)),
         ":activity_type_id": &activity_type_id,
-    }).unwrap();
+    })
+    .unwrap();
 
     let id = conn.last_insert_rowid();
 
-    let mut stmt = conn.prepare("select id, description, date, activity_type_id from activities where id = :id").unwrap();
+    let mut stmt = conn
+        .prepare("select id, description, date, activity_type_id from activities where id = :id")
+        .unwrap();
 
     let mut rows = stmt
         .query(named_params! {
@@ -191,7 +204,9 @@ pub(crate) fn update(
         return Err("Activity not found".to_string());
     }
 
-    let mut stmt = conn.prepare("SELECT id, description, date, activity_type_id FROM activities WHERE id = :id").unwrap();
+    let mut stmt = conn
+        .prepare("SELECT id, description, date, activity_type_id FROM activities WHERE id = :id")
+        .unwrap();
 
     let mut rows = stmt
         .query(named_params! {
@@ -214,7 +229,9 @@ pub(crate) fn update(
 }
 
 pub(crate) fn find_by_id(conn: &Connection, id: i32) -> Result<Activity, String> {
-    let mut stmt = conn.prepare("SELECT id, description, date, activity_type_id FROM activities WHERE id = :id").unwrap();
+    let mut stmt = conn
+        .prepare("SELECT id, description, date, activity_type_id FROM activities WHERE id = :id")
+        .unwrap();
 
     let mut rows = stmt
         .query(named_params! {
@@ -222,9 +239,7 @@ pub(crate) fn find_by_id(conn: &Connection, id: i32) -> Result<Activity, String>
         })
         .unwrap();
 
-    let row = rows
-        .next()
-        .expect("Could not retrieve query rows.");
+    let row = rows.next().expect("Could not retrieve query rows.");
 
     if row.is_none() {
         return Err("Activity not found".to_string());

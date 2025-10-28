@@ -1,5 +1,5 @@
-use crate::domain::activity_type::ActivityType;
 use crate::domain::activity_type;
+use crate::domain::activity_type::ActivityType;
 use rusqlite::Connection;
 use std::ops::Deref;
 use std::sync::Mutex;

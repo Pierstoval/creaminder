@@ -3,16 +3,56 @@ use rusqlite::functions::Context;
 use rusqlite::functions::FunctionFlags;
 use rusqlite::Connection;
 use rusqlite::OpenFlags;
+use std::fs;
+use std::io::{Read, Write};
 use tauri::AppHandle;
 use tauri::Manager;
 
 pub(crate) fn get_database_connection(app: &AppHandle) -> Connection {
+    let data_dir = app
+        .path()
+        .app_local_data_dir()
+        .expect("Could not fetch data dir");
+    if !data_dir.exists() {
+        fs::create_dir_all(data_dir.clone()).expect("Could not create data dir");
+    }
 
-    let empty_db_path = app.path().resolve("data/data.db", tauri::path::BaseDirectory::Resource).unwrap();
+    let database_path = data_dir.join("data.db");
+
+    if database_path.exists() {
+        fs::remove_file(database_path.clone()).unwrap();
+    }
+
+    let path_resolver = app.path();
+
+    let txt_file_path = path_resolver
+        .resolve("assets/test.txt", tauri::path::BaseDirectory::Resource)
+        .unwrap();
+    let txt_content = std::fs::read_to_string(&txt_file_path).unwrap();
+    dbg!(&txt_content);
+
+    // if !database_path.exists() {
+    dbg!("Creating database");
+    let empty_db_path = path_resolver
+        .resolve("assets/empty.db", tauri::path::BaseDirectory::Resource)
+        .expect("Could not retrieve empty database from resources");
+    dbg!("Empty DB path:");
+    dbg!(&empty_db_path);
+    dbg!(&empty_db_path.exists());
+    let mut empty_file = fs::File::open(&empty_db_path).unwrap();
+    dbg!(&empty_file);
+    let mut db_content = Vec::new();
+    empty_file.read_to_end(&mut db_content).unwrap();
+    let mut file = fs::File::create_new(database_path.clone()).unwrap();
+    file.write_all(&db_content).unwrap();
+    file.sync_all().unwrap();
+    // }
+
+    dbg!(&database_path);
 
     let database_flags = get_database_flags();
 
-    let mut conn = Connection::open_with_flags(empty_db_path, database_flags)
+    let mut conn = Connection::open_with_flags(database_path, database_flags)
         .expect("Could not open database.");
 
     conn.create_scalar_function(
@@ -78,7 +118,7 @@ fn regexp_with_auxilliary(ctx: &Context<'_>) -> rusqlite::Result<bool> {
 // }
 
 fn migrations() -> Vec<rusqlite_migration::M<'static>> {
-    vec![
-        rusqlite_migration::M::up(include_str!("./migrations/0-init.sql")),
-    ]
+    vec![rusqlite_migration::M::up(include_str!(
+        "./migrations/0-init.sql"
+    ))]
 }

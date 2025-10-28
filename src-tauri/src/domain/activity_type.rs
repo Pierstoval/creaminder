@@ -44,12 +44,18 @@ pub(crate) fn find_all(conn: &Connection) -> Vec<ActivityType> {
     activity_types
 }
 
-pub(crate) fn create(conn: &Connection, name: String, description: Option<String>) -> Result<ActivityType, String> {
+pub(crate) fn create(
+    conn: &Connection,
+    name: String,
+    description: Option<String>,
+) -> Result<ActivityType, String> {
     if name.trim().is_empty() {
         return Err("Activity type name cannot be empty".to_string());
     }
 
-    let mut stmt = conn.prepare("INSERT INTO activity_types ( name, description ) VALUES ( :name, :description )").unwrap();
+    let mut stmt = conn
+        .prepare("INSERT INTO activity_types ( name, description ) VALUES ( :name, :description )")
+        .unwrap();
 
     let result = stmt.execute(named_params! {
         ":name": &name,
@@ -62,7 +68,9 @@ pub(crate) fn create(conn: &Connection, name: String, description: Option<String
 
     let id = conn.last_insert_rowid();
 
-    let mut stmt = conn.prepare("SELECT id, name, description FROM activity_types WHERE id = :id").unwrap();
+    let mut stmt = conn
+        .prepare("SELECT id, name, description FROM activity_types WHERE id = :id")
+        .unwrap();
 
     let mut rows = stmt
         .query(named_params! {
@@ -84,12 +92,21 @@ pub(crate) fn create(conn: &Connection, name: String, description: Option<String
     Err(data.unwrap_err().to_string())
 }
 
-pub(crate) fn update(conn: &Connection, id: i32, name: String, description: Option<String>) -> Result<ActivityType, String> {
+pub(crate) fn update(
+    conn: &Connection,
+    id: i32,
+    name: String,
+    description: Option<String>,
+) -> Result<ActivityType, String> {
     if name.trim().is_empty() {
         return Err("Activity type name cannot be empty".to_string());
     }
 
-    let mut stmt = conn.prepare("UPDATE activity_types SET name = :name, description = :description WHERE id = :id").unwrap();
+    let mut stmt = conn
+        .prepare(
+            "UPDATE activity_types SET name = :name, description = :description WHERE id = :id",
+        )
+        .unwrap();
 
     let result = stmt.execute(named_params! {
         ":id": &id,
@@ -106,7 +123,9 @@ pub(crate) fn update(conn: &Connection, id: i32, name: String, description: Opti
         return Err("Activity type not found".to_string());
     }
 
-    let mut stmt = conn.prepare("SELECT id, name, description FROM activity_types WHERE id = :id").unwrap();
+    let mut stmt = conn
+        .prepare("SELECT id, name, description FROM activity_types WHERE id = :id")
+        .unwrap();
 
     let mut rows = stmt
         .query(named_params! {
@@ -129,7 +148,9 @@ pub(crate) fn update(conn: &Connection, id: i32, name: String, description: Opti
 }
 
 pub(crate) fn find_by_id(conn: &Connection, id: i32) -> Result<ActivityType, String> {
-    let mut stmt = conn.prepare("SELECT id, name, description FROM activity_types WHERE id = :id").unwrap();
+    let mut stmt = conn
+        .prepare("SELECT id, name, description FROM activity_types WHERE id = :id")
+        .unwrap();
 
     let mut rows = stmt
         .query(named_params! {
@@ -137,9 +158,7 @@ pub(crate) fn find_by_id(conn: &Connection, id: i32) -> Result<ActivityType, Str
         })
         .unwrap();
 
-    let row = rows
-        .next()
-        .expect("Could not retrieve query rows.");
+    let row = rows.next().expect("Could not retrieve query rows.");
 
     if row.is_none() {
         return Err("Activity type not found".to_string());

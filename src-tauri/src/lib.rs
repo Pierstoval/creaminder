@@ -1,5 +1,5 @@
-use std::sync::Mutex;
 use crate::db::get_database_connection;
+use std::sync::Mutex;
 use tauri::Manager;
 
 mod db;
@@ -14,8 +14,8 @@ mod domain {
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
-
     tauri::Builder::default()
+        .plugin(tauri_plugin_fs::init())
         .plugin(tauri_plugin_opener::init())
         .setup(|app| {
             let app_handle = app.handle();
