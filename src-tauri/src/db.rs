@@ -25,9 +25,7 @@ pub(crate) fn get_database_connection(app: &AppHandle) -> Connection {
 
     let path_resolver = app.path();
 
-    let txt_file_path = path_resolver
-        .resolve("assets/test.txt", tauri::path::BaseDirectory::Resource)
-        .unwrap();
+    let txt_file_path = path_resolver.resolve("assets/test.txt", tauri::path::BaseDirectory::Resource).unwrap();
     let txt_content = std::fs::read_to_string(&txt_file_path).unwrap();
     dbg!(&txt_content);
 
