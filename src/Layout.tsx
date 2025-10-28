@@ -23,6 +23,7 @@ export default function Layout() {
                 <ul>
                     <li><Link className="btn" to="/">{t('activities_title')}</Link></li>
                     <li><Link className="btn" to="/activity-type/list">{t('activity_types_title')}</Link></li>
+                    <li><Link className="btn" to="/calendar">{t('calendar_title')}</Link></li>
                     {i18n.language == 'fr' || (<LocaleLink locale="fr" flag="🇫🇷" />)}
                     {i18n.language == 'en' || (<LocaleLink locale="en" flag="🇬🇧" />)}
                 </ul>

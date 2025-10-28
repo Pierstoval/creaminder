@@ -5,7 +5,7 @@ import {Link} from "react-router";
 import {useTranslation} from "react-i18next";
 import { success, error } from '../stores/flash_messages.ts';
 
-export function ActivityTypeList() {
+export default function ActivityTypeList() {
     const {t} = useTranslation();
 
     const [activityTypes, setActivityTypes] = useState<ActivityType[]>([]);

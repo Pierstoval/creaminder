@@ -12,9 +12,10 @@ import Layout from "./Layout";
 import ActivityList from "./routes/ActivityList.tsx";
 import ActivityCreate from "./routes/ActivityCreate";
 import ActivityTypeCreate from "./routes/ActivityTypeCreate.tsx";
-import {ActivityTypeList} from "./routes/ActivityTypeList.tsx";
+import ActivityTypeList from "./routes/ActivityTypeList.tsx";
 import ActivityTypeEdit from "./routes/ActivityTypeEdit.tsx";
 import ActivityEdit from "./routes/ActivityEdit.tsx";
+import Calendar from "./routes/Calendar.tsx";
 
 i18n
     .use(initReactI18next)
@@ -36,6 +37,7 @@ ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
         <Routes>
             <Route element={<Layout />}>
                 <Route index element={<ActivityList />} />
+                <Route path="/calendar" element={<Calendar />} />
                 <Route path="/activity/list" element={<ActivityList />} />
                 <Route path="/activity/create" element={<ActivityCreate />} />
                 <Route path="/activity/edit/:id" element={<ActivityEdit />} />
