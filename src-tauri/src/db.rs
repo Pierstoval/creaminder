@@ -4,9 +4,11 @@ use rusqlite::functions::FunctionFlags;
 use rusqlite::Connection;
 use rusqlite::OpenFlags;
 use std::fs;
-use std::io::{Read, Write};
-use tauri::AppHandle;
+use std::io::Write;
+use std::path::PathBuf;
+use tauri::{AppHandle, Wry};
 use tauri::Manager;
+use tauri_plugin_fs::FsExt;
 
 pub(crate) fn get_database_connection(app: &AppHandle) -> Connection {
     let data_dir = app
@@ -23,30 +25,12 @@ pub(crate) fn get_database_connection(app: &AppHandle) -> Connection {
         fs::remove_file(database_path.clone()).unwrap();
     }
 
-    let path_resolver = app.path();
-
-    let txt_file_path = path_resolver.resolve("assets/test.txt", tauri::path::BaseDirectory::Resource).unwrap();
-    let txt_content = std::fs::read_to_string(&txt_file_path).unwrap();
-    dbg!(&txt_content);
-
-    // if !database_path.exists() {
-    dbg!("Creating database");
-    let empty_db_path = path_resolver
-        .resolve("assets/empty.db", tauri::path::BaseDirectory::Resource)
-        .expect("Could not retrieve empty database from resources");
-    dbg!("Empty DB path:");
-    dbg!(&empty_db_path);
-    dbg!(&empty_db_path.exists());
-    let mut empty_file = fs::File::open(&empty_db_path).unwrap();
-    dbg!(&empty_file);
-    let mut db_content = Vec::new();
-    empty_file.read_to_end(&mut db_content).unwrap();
-    let mut file = fs::File::create_new(database_path.clone()).unwrap();
-    file.write_all(&db_content).unwrap();
-    file.sync_all().unwrap();
-    // }
+    if !database_path.exists() {
+        //create_empty_database(app, &database_path);
+    }
 
     dbg!(&database_path);
+    dbg!(&database_path.exists());
 
     let database_flags = get_database_flags();
 
@@ -67,13 +51,31 @@ pub(crate) fn get_database_connection(app: &AppHandle) -> Connection {
     conn
 }
 
+fn create_empty_database(app: &AppHandle, database_path: &PathBuf) {
+    let path_resolver = app.path();
+
+    dbg!("Creating database");
+    let empty_db_path = path_resolver
+        .resolve("assets/empty.db", tauri::path::BaseDirectory::Resource)
+        .expect("Could not retrieve empty database from resources");
+    dbg!("Empty DB path:");
+    dbg!(&empty_db_path);
+    dbg!(&empty_db_path.exists());
+
+    let db_content = app.fs().read(&empty_db_path).unwrap();
+
+    let mut file = fs::File::create_new(database_path.clone()).unwrap();
+    file.write_all(&db_content).unwrap();
+    file.sync_all().unwrap();
+}
+
 fn get_database_flags() -> OpenFlags {
     let mut db_flags = OpenFlags::empty();
 
     db_flags.insert(OpenFlags::SQLITE_OPEN_READ_WRITE);
     db_flags.insert(OpenFlags::SQLITE_OPEN_CREATE);
     db_flags.insert(OpenFlags::SQLITE_OPEN_FULL_MUTEX);
-    db_flags.insert(OpenFlags::SQLITE_OPEN_NOFOLLOW);
+    // db_flags.insert(OpenFlags::SQLITE_OPEN_NOFOLLOW);
     db_flags.insert(OpenFlags::SQLITE_OPEN_PRIVATE_CACHE);
 
     db_flags
