@@ -2,7 +2,7 @@ import {useEffect, useState} from "react";
 import {Link} from "react-router";
 import {useTranslation} from "react-i18next";
 
-import {Activity} from "../lib/entities/Activity.ts";
+import Activity, {getActivitiesList} from "../lib/entities/Activity.ts";
 import ActivityType, {getActivityTypesList} from "../lib/entities/ActivityType.ts";
 import api_call from "../lib/api_call.ts";
 import ActivityTypesIcons from "../lib/components/ActivityTypesIcons.tsx";
@@ -16,13 +16,7 @@ export default function ActivityList() {
     const [selectedActivityType, setSelectedActivityType] = useState<number>(0);
 
     function fetchList() {
-        const params = selectedActivityType ? { activity_type_id: selectedActivityType } : {};
-        api_call<Activity[]>("activity_list", params)
-            .then((activities_input: Activity[]): void => {
-                if (!Array.isArray(activities_input)) { throw new Error('API type error'); }
-                setActivities(activities_input.map((object: unknown) => Activity.from(object)));
-            })
-            .catch(e => error(t('error_api_generic')+"\n"+e?.toString()));
+        getActivitiesList(selectedActivityType).then(list => setActivities(list)).catch(e => error(t('error_api_generic')+"\n"+e?.toString()));
     }
 
     useEffect(() => {
@@ -36,7 +30,9 @@ export default function ActivityList() {
     });
 
     function formatDate(date: string): string {
-        return dateFormatter.format(new Date(date));
+        const d = new Date(date);
+        console.info({date, d});
+        return dateFormatter.format(d) + ' ('+date+')';
     }
 
     function deleteActivity(activity: Activity) {

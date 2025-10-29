@@ -1,8 +1,9 @@
-import "./App.css";
-import "react-datepicker/dist/react-datepicker.css";
-import {Link, Outlet} from "react-router";
+import {NavLink, Outlet} from "react-router";
 import {useTranslation} from "react-i18next";
 import FlashMessages from './lib/components/messages/FlashMessages.tsx';
+
+import "react-datepicker/dist/react-datepicker.css";
+import "./App.css";
 
 export default function Layout() {
     const {t, i18n} = useTranslation();
@@ -21,9 +22,9 @@ export default function Layout() {
         <main>
             <nav className="main">
                 <ul>
-                    <li><Link className="btn" to="/">{t('activities_title')}</Link></li>
-                    <li><Link className="btn" to="/activity-type/list">{t('activity_types_title')}</Link></li>
-                    <li><Link className="btn" to="/calendar">{t('calendar_title')}</Link></li>
+                    <li><NavLink activeClassName="active" className="btn" to="/">{t('activities_title')}</NavLink></li>
+                    <li><NavLink activeClassName="active" className="btn" to="/activity-type/list">{t('activity_types_title')}</NavLink></li>
+                    <li><NavLink activeClassName="active" className="btn" to="/calendar">{t('calendar_title')}</NavLink></li>
                     {i18n.language == 'fr' || (<LocaleLink locale="fr" flag="🇫🇷" />)}
                     {i18n.language == 'en' || (<LocaleLink locale="en" flag="🇬🇧" />)}
                 </ul>

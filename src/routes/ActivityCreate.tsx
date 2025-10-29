@@ -2,7 +2,7 @@ import api_call from "../lib/api_call.ts";
 import {useTranslation} from "react-i18next";
 import { error, success } from '../stores/flash_messages.ts';
 import {useNavigate} from "react-router";
-import {Activity, PartialActivity} from "../lib/entities/Activity.ts";
+import Activity, {PartialActivity} from "../lib/entities/Activity.ts";
 import ActivityForm from "../lib/components/ActivityForm.tsx";
 
 export default function ActivityCreate() {

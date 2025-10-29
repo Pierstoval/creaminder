@@ -2,7 +2,7 @@ import {useEffect, useState} from "react";
 import {useTranslation} from "react-i18next";
 import ActivityType, {getActivityTypesList} from "../../lib/entities/ActivityType.ts";
 import {error} from '../../stores/flash_messages.ts';
-import {Activity, PartialActivity} from "../entities/Activity.ts";
+import Activity, {PartialActivity} from "../entities/Activity.ts";
 import DatePicker from "react-datepicker";
 import {getFormattedTimezoneOffset} from "../utils.ts";
 
@@ -28,6 +28,7 @@ export default function ActivityForm({onSubmit, type, data}: Props) {
     async function submit(): Promise<void> {
         let newDate = null;
         if (date) {
+            //
             const offsetString = getFormattedTimezoneOffset(new Date().getTimezoneOffset());
             newDate = date.toJSON().replace(/(\.\d+)?z/i, '') + offsetString;
         }
@@ -49,7 +50,7 @@ export default function ActivityForm({onSubmit, type, data}: Props) {
     }, []);
 
     return (
-        <form action={submit}>
+        <form action={submit} autoComplete="off">
             <table>
                 <tbody>
                 <tr>
@@ -68,9 +69,10 @@ export default function ActivityForm({onSubmit, type, data}: Props) {
                             selected={date}
                             locale={i18n.language}
                             onChange={(d: Date|null) => setDate(d)}
+                            customInput={<input type="text" autoComplete="off" />}
                         />
                         <br />
-                        <small>(leave empty to keep current date and time)</small>
+                        <small>({t('activity_form_date_help')})</small>
                     </td>
                 </tr>
                 <tr>

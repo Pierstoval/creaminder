@@ -4,11 +4,8 @@ use rusqlite::functions::FunctionFlags;
 use rusqlite::Connection;
 use rusqlite::OpenFlags;
 use std::fs;
-use std::io::Write;
-use std::path::PathBuf;
-use tauri::{AppHandle, Wry};
+use tauri::AppHandle;
 use tauri::Manager;
-use tauri_plugin_fs::FsExt;
 
 pub(crate) fn get_database_connection(app: &AppHandle) -> Connection {
     let data_dir = app
@@ -20,17 +17,6 @@ pub(crate) fn get_database_connection(app: &AppHandle) -> Connection {
     }
 
     let database_path = data_dir.join("data.db");
-
-    if database_path.exists() {
-        fs::remove_file(database_path.clone()).unwrap();
-    }
-
-    if !database_path.exists() {
-        //create_empty_database(app, &database_path);
-    }
-
-    dbg!(&database_path);
-    dbg!(&database_path.exists());
 
     let database_flags = get_database_flags();
 
@@ -51,31 +37,12 @@ pub(crate) fn get_database_connection(app: &AppHandle) -> Connection {
     conn
 }
 
-fn create_empty_database(app: &AppHandle, database_path: &PathBuf) {
-    let path_resolver = app.path();
-
-    dbg!("Creating database");
-    let empty_db_path = path_resolver
-        .resolve("assets/empty.db", tauri::path::BaseDirectory::Resource)
-        .expect("Could not retrieve empty database from resources");
-    dbg!("Empty DB path:");
-    dbg!(&empty_db_path);
-    dbg!(&empty_db_path.exists());
-
-    let db_content = app.fs().read(&empty_db_path).unwrap();
-
-    let mut file = fs::File::create_new(database_path.clone()).unwrap();
-    file.write_all(&db_content).unwrap();
-    file.sync_all().unwrap();
-}
-
 fn get_database_flags() -> OpenFlags {
     let mut db_flags = OpenFlags::empty();
 
     db_flags.insert(OpenFlags::SQLITE_OPEN_READ_WRITE);
     db_flags.insert(OpenFlags::SQLITE_OPEN_CREATE);
     db_flags.insert(OpenFlags::SQLITE_OPEN_FULL_MUTEX);
-    // db_flags.insert(OpenFlags::SQLITE_OPEN_NOFOLLOW);
     db_flags.insert(OpenFlags::SQLITE_OPEN_PRIVATE_CACHE);
 
     db_flags
@@ -104,18 +71,6 @@ fn regexp_with_auxilliary(ctx: &Context<'_>) -> rusqlite::Result<bool> {
 
     Ok(is_match)
 }
-
-// fn fallback_database_dir() -> PathBuf {
-//     let project_dir = env::current_exe().expect("Could not determine current executable directory")
-//         .parent().expect("Could not determine parent directory to current executable")
-//         .join(".creaminder_dev");
-//
-//     if !project_dir.exists() {
-//         fs::create_dir_all(&project_dir).expect(format!("Could not create fallback database directory in {}", &project_dir.display()).as_ref());
-//     }
-//
-//     project_dir
-// }
 
 fn migrations() -> Vec<rusqlite_migration::M<'static>> {
     vec![rusqlite_migration::M::up(include_str!(

@@ -1,14 +1,15 @@
 import {useEffect, useState} from "react";
-import {Activity} from "../lib/entities/Activity.ts";
+import Activity, {getActivitiesList} from "../lib/entities/Activity.ts";
 import ActivityType, {getActivityTypesList} from "../lib/entities/ActivityType.ts";
-import api_call from "../lib/api_call.ts";
 import {error} from "../stores/flash_messages.ts";
 import {useTranslation} from "react-i18next";
 import {default as LightweightCalendar} from 'react-lightweight-calendar';
 import ActivityTypesIcons from "../lib/components/ActivityTypesIcons.tsx";
+import {ColorDot} from "react-lightweight-calendar/dist/components/Calendar/Calendar.types";
+import {fr, enGB} from 'date-fns/locale';
 
 export default function Calendar() {
-    const {t} = useTranslation();
+    const {t, i18n} = useTranslation();
     const [calendarData, setCalendarData] = useState<Record<string, any>[]>([]);
     const [activities, setActivities] = useState<Activity[]>([]);
     const [activityTypes, setActivityTypes] = useState<ActivityType[]>([]);
@@ -19,36 +20,26 @@ export default function Calendar() {
         return [...data][0] ?? null;
     }
 
-    function fetchList() {
-        const params = selectedActivityType ? { activity_type_id: selectedActivityType } : {};
-        api_call<Activity[]>("activity_list", params)
-            .then((activities_input: Activity[]): void => {
-                if (!Array.isArray(activities_input)) { throw new Error('API type error'); }
-                setActivities(activities_input.map((object: unknown) => Activity.from(object)));
-            })
-            .catch(e => error(t('error_api_generic')+"\n"+e?.toString()));
-    }
-
     useEffect(() => {
-        fetchList();
-        getActivityTypesList().then(list => setActivityTypes(list)).catch(e => error(e.toString()));
+        getActivitiesList(selectedActivityType).then(list => setActivities(list)).catch(e => error(t('error_api_generic')+"\n"+e?.toString()));
+        getActivityTypesList().then(list => setActivityTypes(list)).catch(e => error(t('error_api_generic')+"\n"+e?.toString()));
     }, [selectedActivityType]);
 
     useEffect(() => {
-        const data: Record<string, any> = [];
-
-        activities.forEach(activity => {
-            data.push({
-                id: activity.id,
-                startTime: activity.date,
-                endTime: activity.date,
-                title: getActivityTypeById(Number(activity.activity_type_id))?.name || "❓",
-            })
-        })
-
+        const data: Record<string, any>[] = activities.map(activity => ({
+            id: activity.id,
+            startTime: activity.date,
+            endTime: activity.date,
+            title: getActivityTypeById(Number(activity.activity_type_id))?.name || "❓",
+        }));
         console.info('Calendar data', data);
         setCalendarData(data);
     }, [selectedActivityType, activityTypes, activities]);
+
+    function renderItem(item: Record<string, any>) {
+        console.info({item});
+        return item.title;
+    }
 
     return (<>
 
@@ -60,6 +51,8 @@ export default function Calendar() {
         <LightweightCalendar
             data={calendarData}
             activeTimeDateField="startTime"
+            renderItemText={renderItem}
+            locale={i18n.language === 'fr' ? fr : (i18n.language === 'en' ? enGB : enGB)}
         />
     </>);
 }

@@ -1,3 +1,5 @@
+import api_call from "../api_call.ts";
+
 export type PartialActivity = {
     id: number;
     description: string | null;
@@ -5,7 +7,7 @@ export type PartialActivity = {
     activity_type_id: number | null
 };
 
-export class Activity {
+export default class Activity {
     public _id!: number;
     public readonly description!: string;
     public date!: string;
@@ -40,4 +42,14 @@ export class Activity {
 
         return new Activity(Number(input?.id), input?.description || '', input.date, Number(input.activity_type_id));
     }
+}
+
+export async function getActivitiesList(selectedActivityType?: number): Promise<Activity[]> {
+    const params = selectedActivityType ? { activity_type_id: selectedActivityType } : {};
+
+    return api_call<Activity[]>("activity_list", params)
+        .then((activities_input: Activity[]): Activity[] => {
+            if (!Array.isArray(activities_input)) { throw new Error('API type error'); }
+            return activities_input.map((object: unknown) => Activity.from(object));
+        });
 }

@@ -1,0 +1,35 @@
+
+/*
+ * Special case: buttons that can be links, or vice-versa
+ */
+
+button + button,
+button + .btn,
+.btn + button,
+.btn + .btn
+{
+    margin-left: 6px;
+}
+button,
+.btn
+{
+    border: none 0 transparent;
+    background: #ddd;
+    color: black;
+    border-radius: 30px;
+    padding: 10px 15px;
+}
+button:hover,
+.btn:hover
+{
+    background: #eee;
+    cursor: pointer;
+}
+button:active,
+.btn:active
+{
+    background: #ccc;
+}
+a.btn {
+    text-decoration: none;
+}
